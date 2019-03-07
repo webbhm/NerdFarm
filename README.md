@@ -1,5 +1,6 @@
 # NerdFarm
 Code for the building of the NeredFarm brain
+3/7/2019 - this is currently a work in progress, don't assume it works!!
 ## Background 
 
 Code and instructions for building the 'brain' of the controled environment hydroponics unit.
