@@ -1,0 +1,51 @@
+# Crontab jobs used by the MVP 
+# Author: Howard Webb
+# Date: 11/13/2017
+# Warning: This will overwrite any existing crontab, do not use if you use cron for other purposes
+
+# Don't send email
+MAILTO=""
+
+# Path to the MVP python code
+PY_PATH=/home/pi/MVP/python
+
+# Path to the MVP scripts
+MVP_SCRIPTS=/home/pi/MVP/scripts
+
+# Path to other scripts
+SCRIPT_PATH=/home/pi/scripts
+
+# Cron output log
+CRON_LOG=/home/pi/MVP/logs/cron.log
+
+# m h  dom mon dow   command
+# Check thermostat every minute
+*/1 * * * * python3 $PY_PATH/Thermostat.py >> $CRON_LOG 2>&1
+
+# Turn lights on at 6AM
+0 6 * * * python3 $PY_PATH/LightOn.py >> $CRON_LOG 2>&1
+
+# Turn lights off at 22:30 (10:30PM)
+30 22 * * * python3 $PY_PATH/LightOff.py >> $CRON_LOG 2>&1
+
+# Log the sensors every 20 minutes
+*/20 * * * * $MVP_SCRIPTS/LogData.sh >> $CRON_LOG 2>&1
+
+# Take a USB camera picture one minute after the hour from 6am to 10pm
+1 6-22 * * * $MVP_SCRIPTS/Webcam.sh >> $CRON_LOG 2>&1
+
+# Take a Raspberry Pi camera picture two minute after the hour from 6am to 10pm
+2 6-22 * * * python3 $PY_PATH/getImage.py >> $CRON_LOG 2>&1
+
+# Render the data for the website
+10 * * * * $MVP_SCRIPTS/Render.sh >> $CRON_LOG 2>&1
+
+# Check CouchDB heartbeat
+10 * * * * $MVP_SCRIPTS/Heartbeat.sh >> $CRON_LOG 2>&1
+
+# Check Reservoir 15 minutes after every hour
+15 */1 * * * python3 $PY_PATH/Reservoir.py >> $CRON_LOG 2>&1
+
+# Build the GIF file once a day
+1 23 * * * python3 $PY_PATH/ImgToGif.py >> $CRON_LOG 2>&1
+
