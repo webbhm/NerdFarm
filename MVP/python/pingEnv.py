@@ -4,9 +4,11 @@
 
 from SI7021 import *
 from oneWireTemp import *
-from TSL2561 import getLux
+from TSL2561 import TSL2561
 from VL53L0X import *
 import NDIR
+from EC import EC
+# pip3 install paho-mqtt
 import paho.mqtt.client as mqtt
 from datetime import datetime
 from time import sleep
@@ -16,14 +18,14 @@ def on_connect(client, userdata, flags, rc):
     pass
 
 def on_publish(client, userdata, mid):
-    print "Published", userdata, " ", mid
+    print("Published " + userdata + " " + mid)
 
 def on_disconnect(client, userdata, rc):
-    print "Disconnected: ", userdata, " Result: ", mqtt.connack_string(rc)
+    print("Disconnected: " + userdata + " Result: " + mqtt.connack_string(rc))
 
 def pingMQTT(name, msg, test=False):
-    host="iot.eclipse.org"
-#    host="test.mosquitto.org"
+#    host="iot.eclipse.org"
+    host="test.mosquitto.org"
     port=1883
     keepalive=60
     client = mqtt.Client()
@@ -32,19 +34,19 @@ def pingMQTT(name, msg, test=False):
     client.on_publish=on_publish
     client.on_disconnect=on_disconnect
     q=client.connect(host=host, port=port, keepalive=keepalive)        
-    print "Connection: host, port, keepalive ", host, port, keepalive
-    topic='OpenAgBloom/' + name 
+    print("Connection: host, port, keepalive " + host + " " + str(port) + " " + str(keepalive))
+    topic='OpenAgBloom/123/' + name 
     result,mid=client.publish(topic, msg)
     client.disconnect()
     if test:
-        print "Topic: ", topic, " Msg: ", msg
-        print "Result: ", mqtt.connack_string(result), "Msg Id: ", mid
+        print("Topic: " + topic + " Msg: " + msg)
+        print("Result: " + mqtt.connack_string(result) + " Msg Id: " + str(mid))
 
 def msgTemp(test=False):
     si=SI7021()
     temp = si.get_tempC()
     msg='{:.2f}'.format(temp)
-    pingMQTT('Air/Temp', msg, test)
+    pingMQTT('Air/Temperature', msg, test)
     return msg
     
 
@@ -71,9 +73,17 @@ def msgDepth(test=False):
     return msg
 
 def msgLUX(test=False):
-    lux=getLux()
+    sensor = TSL2561()
+    lux=sensor.getLux()
     msg='{:3.1f}'.format(lux)
     pingMQTT('Light/Lux', msg, test)
+    return msg
+
+def msgEC(test=False):
+    sensor = EC()
+    ec=sensor.getEC()
+    msg='{:3.1f}'.format(ec)
+    pingMQTT('Nutrient/EC', msg, test)
     return msg
 
 def msgTopTemp(test=False):
@@ -102,23 +112,29 @@ def msgReservoirTemp(test=False):
 
 
 def test():
-    print "Send Temp"
+    print("Send Temp")
     msg=msgTemp(True)
-    print "Temp: ", msg
+    print("Temp: " +  msg)
 
     sleep(5)
     
-    print "Send Humidity"
+    print("Send Humidity")
     msg=msgHumidity(True)
-    print "Humidity: ", msg
+    print("Humidity: " + msg)
 
     sleep(5)
 
-    print "Send CO2"
+    print("Send CO2")
     msg=msgCO2(True)
-    print "CO2: ", msg
+    print("CO2: " + msg)
 
-    sleep(5)    
+    sleep(5)
+    
+    print("Send EC")
+    msg=msgEC(True)
+    print("EC: " + msg)
+
+    sleep(5)        
 
 #    print "Send Distanace"
 #    msg=msgDepth(True)
@@ -126,36 +142,36 @@ def test():
 
 #    sleep(5)    
 
-    print "Send LUX"
+    print("Send LUX")
     msg=msgLUX(True)
-    print "LUX: ", msg
+    print("LUX: " + msg)
 
     sleep(5)    
 
-    print "Send Ambient Temp"
+    print("Send Ambient Temp")
     msg=msgAmbientTemp(True)
-    print "Ambient Temp: ", msg
+    print("Ambient Temp: " + msg)
     
     sleep(5)    
 
-    print "Top Temp"
+    print("Top Temp")
     msg=msgTopTemp(True)
-    print "Top Temp: ", msg
+    print("Top Temp: " + msg)
 
     sleep(5)    
 
-    print "Box Temp"
+    print("Box Temp")
     msg=msgBoxTemp(True)
-    print "Box Temp: ", msg
+    print("Box Temp: " + msg)
 
     sleep(5)    
 
-    print "Reservoir Temp"
+    print("Reservoir Temp")
     msg=msgReservoirTemp(True)
-    print "ReservoirTemp: ", msg
+    print("ReservoirTemp: " + msg)
 
 def test2():
-    print "Test Connection"
+    print("Test Connection")
     msg="TEST"
     pingMQTT('Test', msg, True)
     
