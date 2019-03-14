@@ -9,8 +9,18 @@ from env import env
 from PIL import Image
 
 def getPics(dir, type, start_date, end_date, test=False):
-    ''' Get set of pictures, last picture of the day since start
-    '''
+    '''Select last picture of each day since start of trial
+           Args:
+               dir: directory where pictures are located
+               type: file format (usually jpg)
+               start_date: start of the trial
+               end_date: end time (usually current time)
+               test:
+           Returns:
+               pics: array of file names
+           Raises:
+               None
+    '''               
     if test:
         print("Get Pics from " + dir + " " + start_date + " to " + end_date)
         
@@ -35,8 +45,15 @@ def getPics(dir, type, start_date, end_date, test=False):
     return pics
 
 def pic_to_img(pics, test=False):
-    ''' Open pictures as images
-    '''
+    '''Open pictures as images
+           Args:
+               pics: array of file names
+               test:
+           Returns:
+               img: array of image structures
+           Raises:
+               None
+    '''  
     if test:
         print("Open pictures as images")
     images=[]
@@ -46,8 +63,17 @@ def pic_to_img(pics, test=False):
         
 
 def resize_images(images, size, test=False):
-    ''' Resize for better working
-    '''
+    '''Reduce image size for better processing and display
+           Args:
+               images: array if image data
+               size: list of desired image size
+               test:
+           Returns:
+               img: array of resized image structures
+           Raises:
+               None
+    '''  
+
     if test:
         print("Resize: " + str(size))
     out = []
@@ -57,8 +83,16 @@ def resize_images(images, size, test=False):
     return out        
         
 def make_gif(images, test=False):
-    ''' Output images as GIF
-    '''
+    '''Convert set of images to a GIF and saves to file
+           Args:
+               images: array of image data
+               test:
+           Returns:
+               None:
+           Raises:
+               None
+    '''  
+    
     output_file = "/home/pi/MVP/web/plant.gif"
     duration = 0.2
     images[0].save(output_file, format='GIF', append_images=images[1:], save_all=True, duration=100, loop=0)
@@ -66,6 +100,15 @@ def make_gif(images, test=False):
         print("GIF Output: " + output_file)
         
 def main(test=False):
+    '''Main controller of processing
+           Args:
+               test:
+           Returns:
+               None:
+           Raises:
+               None
+    '''  
+    
     # Variables to control source and output
     start_date=env["trials"][0]["start_date"]
     end_date=str(datetime.now())
