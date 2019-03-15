@@ -5,6 +5,7 @@
 """
 
 from Light import *
+from Pump import Pump
 from env import env
 from datetime import datetime
 from datetime import timedelta
@@ -21,7 +22,24 @@ def check(test=False):
     Raises:
         None
     """    
+    # Check the pump first to avoid flooding
+    # Don't check state, just make sure it is off
+    pumpOff(test)
     checkLight(test)
+    
+def pumpOff(test=False):
+    """Make sure the pump is turned off
+    Args:
+        test: flag for testing system
+    Returns:
+        None
+    Raises:
+        None
+    """    
+    p = Pump()
+    p.off()
+    msg = "Pump is turned off"
+    logger.debug(msg)    
 
 def checkLight(test=False):
     """Check if lights should be on or off
