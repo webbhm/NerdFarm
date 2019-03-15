@@ -4,7 +4,6 @@
 # Make sure Solenoid is closed
 """
 
-from Light import *
 from Pump import Pump
 from env import env
 from datetime import datetime
@@ -25,7 +24,10 @@ def check(test=False):
     # Check the pump first to avoid flooding
     # Don't check state, just make sure it is off
     pumpOff(test)
-    checkLight(test)
+    try:
+        checkLight(test)
+    except Exception as e:
+        logger.error(e)
     
 def pumpOff(test=False):
     """Make sure the pump is turned off
@@ -50,11 +52,14 @@ def checkLight(test=False):
     Raises:
         None
     """
+    # Move import here so can trap if fails
+    # couchdb library does not seem to load when initially starting
+    import Light
     # Get times from env and split into components
     s=env['lights']['On']
     e=env['lights']['Off']
     state = determineState(s, e)
-    l=Light()
+    l= Light.Light()
     if state:
         l.set_on(test)
         pass
