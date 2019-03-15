@@ -19,11 +19,11 @@ echo Starting Server
 # Start Server
 /home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1
 
+sudo chmod 666 /home/pi/MVP/logs/*
+
+# add sleep to see if this will give time for the couchdb library stuff to get set up.
+sleep 10
 echo Check Lights, etc
 # Run startup code
 python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
 
-echo Start CSS811 Master instance
-python3 /home/pi/MVP/python/CCS811.py >> /home/pi/MVP/logs/startup.log 2>&1
-
-sudo chmod 666 /home/pi/MVP/logs/*
