@@ -4,7 +4,6 @@
 # Date: 2/15/2017
 """
 
-from env import env
 from Relay import *
 import time
 from LogUtil import get_logger
@@ -13,20 +12,20 @@ from LogUtil import get_logger
 ON = 1
 OFF = 0
 
-class Fan(object):
-    """Code associated with the exhaust fan"""
+class Humidifier(object):
+    """Code associated with the Humidifier"""
 
     relay = None
-    target_temp = 0
+    target_rh = 0
 
     def __init__(self):
-        self.logger = get_logger("Fan")
+        self.logger = get_logger("Humidifier")
         self.logger.debug("initialize Fan object")
         self.relay = Relay()
-        self.fan_relay = fanPin
+        self._relay = 29
 
     def set(self, state, test=False):
-        """Set the fan to state
+        """Set the humidifier to state
             Args:
                 state: condition from other source
             Returns:
@@ -35,12 +34,12 @@ class Fan(object):
                 None
         """
         self.logger.debug("In set_state")
-        self.relay.set_state(self.fan_relay, state)
+        self.relay.set_state(self._relay, state)
 
         
 
-    def set_fan_on(self, test=False):
-        """Turn the fan on
+    def set_on(self, test=False):
+        """Turn the humidifier on
             Args:
                 None
             Returns:
@@ -48,10 +47,10 @@ class Fan(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_fan_on")
+        self.logger.debug("In set_on")
         self.set(ON, test)
 
-    def set_fan_off(self):
+    def set_off(self):
         """Turn the fan off
             Args:
                 None
@@ -60,7 +59,7 @@ class Fan(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_fan_off")
+        self.logger.debug("In set_off")
         self.set(OFF, test)
 
     def log_state(self, value, test=False):
@@ -87,17 +86,17 @@ def test():
            Raises:
                None
     """
-    fan = Fan()
+    hm = Humidifier()
     print("Test")
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
-    print("Turn Fan On")
-    fan.set(ON, test)
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
-    time.sleep(2)
+    print("State: " + str(hm.relay.get_state(hm._relay)))
+    print("Turn Humidifier On")
+    hm.set(ON, test)
+    print("State: " + str(hm.relay.get_state(hm._relay)))
+    time.sleep(10)
 
-    print("Turn Fan Off")
-    fan.set(OFF)
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
+    print("Turn Humidifier Off")
+    hm.set(OFF)
+    print("State: " + str(hm.relay.get_state(hm._relay)))
     time.sleep(2)
 
     print("Done")
