@@ -8,12 +8,5 @@
 #Date: 7/15/2017
 
 #NOTE: The server must be started from the directory from which files are to be served
-sudo touch /home/pi/MVP/logs/server.log
-sudo chmod a+r /home/pi/MVP/logs/server.log
-sudo chmod a+w /home/pi/MVP/logs/server.log
-sudo chmod a+x /home/pi/MVP/logs/server.log
 cd /home/pi/MVP/web
-nohup python /home/pi/MVP/python/server_8080.py &> /home/pi/MVP/logs/server.log &
-
-timestamp="$(date +"%D %T")"
-echo $(date +"%D %T") "Server loaded"
+nohup python3 -m http.server
