@@ -51,44 +51,34 @@ error_exit()
 }
 
 ####### Start Build ######################
+# Download files
+
+# Update and refresh system
+echo  "###### Update and Refresh apt-get ######"
 sudo apt-get update
+sudo apt-get refresh
 
-echo "##### Starting to build directories #####"
-# Build target directory
-mkdir -p $TARGET || error_exit "Failure to build target directory"
-echo $(date +"%D %T") $TARGET" built"
+echo  "###### Install CouchDB - downloaded version ######"
+$TARGET/setup/MVP_DB_Dwn.sh || error_exit "Failure installing CouchDB"
 
-# Create log directory
-cd $TARGET
-mkdir -p /home/pi/MVP/logs
+echo  "###### Start CouchDB ######"
+$TARGET/setup/MVP_DB_Start.sh || error_exit "Failure installing CouchDB"
 
-echo "##### Starting download of MVP from Github #####"
-# Download MVP from GitHub and install
-# Build extraction directory
-mkdir -p $EXTRACT || error_exit "Failure to build working directory"
-echo $(date +"%D %T") "Directory built"
-cd $EXTRACT
+echo  "###### UPdate CouchDB, build databases ######"
+$TARGET/setup/MVP_DB_Update.sh || error_exit "Failure updating CouchDB"
 
-# Download from Github
-wget -N $GITHUB -O $VERSION.zip || error_exit "Failure to download zip file"
-echo $(date +"%D %T") "MVP Github downloaded"
+echo  "###### Load Libraries ######"
+$TARGET/setup/MVP_Libraries.sh || error_exit "Failure installing libraries"
 
-cd $EXTRACT
+echo  "###### Test ######"
+$TARGET/setup/MVP_Test.sh || error_exit "Failure on testing"
 
-# Unzip the files, overwrite older existing files without prompting
-unzip -uo $EXTRACT/$VERSION.zip || error_exit "Failure unzipping file"
-echo $(date +"%D %T") "MVP unzipped"
+echo  "###### Final Configuration ######"
+$TARGET/setup/MVP_Final.sh || error_exit "Failure on final configuration"
 
-cd $EXTRACT/$RELEASE-$ZIP_DIR/MVP || error_exit "Failure moving to "$EXTRACT/$RELEASE"-"$ZIP_DIR
+echo  "###### Clean-up ######"
+$TARGET/setup/MVP_Cleanup.sh || error_exit "Failure on final configuration"
 
-# Move to proper directory
-mv * $TARGET
-echo $(date +"%D %T") "MVP moved"
+echo "##### Release Install Completed Successfully, You should reboot the system #####"
 
-########################################
-echo "##### Build the NerdFarm #####"
-
-# Set permissions on script
-chmod +x $TARGET/setup/*.sh || error_exit "Failure setting permissions on release script (check file exists in MVP/scripts)"
-echo $(date +"%D %T") "Run Build Scripts"
-# $TARGET/setup/MVP_RunScripts.sh || error_exit "Failure installing CouchDB"
+exit 0
