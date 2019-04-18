@@ -28,11 +28,13 @@ NC='\033[0m'        # Define default text
 
 EXTRACT=/home/pi/unpack    # Working directory for download and unzipping
 TARGET=/home/pi/MVP       # Location for MVP
-RELEASE=mvp             # Package (repository) to download 
-VERSION=v3.1.8         # github version to work with
-ZIP_DIR=3.1.8
-#GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
-GITHUB=https://github.com/webbhm/NerdFarm/archive/master.zip    # Address of Github archive
+#RELEASE=mvp             # Package (repository) to download 
+RELEASE=NerdFarm             # Package (repository) to download 
+#VERSION=v3.1.8         # github version to work with
+VERSION=master         # github version to work with
+#ZIP_DIR=3.1.8
+ZIP_DIR=master
+GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
 
 echo $EXTRACT
 echo $TARGET
@@ -79,8 +81,8 @@ cd $EXTRACT
 unzip -uo $EXTRACT/$VERSION.zip || error_exit "Failure unzipping file"
 echo $(date +"%D %T") "MVP unzipped"
 
-cd $EXTRACT/$RELEASE-$ZIP_DIR/MVP || error_exit "Failure moving to "$EXTRACT/$RELEASE"-"$ZIP_DIR
-
+#cd $EXTRACT/$RELEASE-$ZIP_DIR/MVP || error_exit "Failure moving to "$EXTRACT/$RELEASE"-"$ZIP_DIR
+cd /home/pi/unpack/NerdFarm-master/MVP || error_exit "Failure moving to "$EXTRACT/$RELEASE"-"$ZIP_DIR
 # Move to proper directory
 mv * $TARGET
 echo $(date +"%D %T") "MVP moved"
