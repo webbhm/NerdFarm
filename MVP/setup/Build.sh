@@ -31,7 +31,8 @@ TARGET=/home/pi/MVP       # Location for MVP
 RELEASE=mvp             # Package (repository) to download 
 VERSION=v3.1.8         # github version to work with
 ZIP_DIR=3.1.8
-GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
+#GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
+GITHUB=https://github.com/webbhm/NerdFarm/archive/master.zip    # Address of Github archive
 
 echo $EXTRACT
 echo $TARGET
@@ -50,54 +51,31 @@ error_exit()
 }
 
 ####### Start Build ######################
-echo "##### Update Existing System #####"
-sudo apt-get update
 
-echo "##### Starting to build directories #####"
-# Build target directory
-mkdir -p $TARGET || error_exit "Failure to build target directory"
-echo $(date +"%D %T") $TARGET" built"
+echo "##### MVP Download - update, download and move #####"
+bash $TARGET/setup/MVP_Download.sh || error_exit "Failure running Download script"
 
-# Create log directory
-cd $TARGET
-mkdir -p /home/pi/MVP/logs
+echo  "###### Install CouchDB - downloaded version ######"
+$TARGET/setup/MVP_DB_Dwn.sh || error_exit "Failure installing CouchDB"
 
-echo "##### Starting download of MVP from Github #####"
-# Download MVP from GitHub and install
-# Build extraction directory
-mkdir -p $EXTRACT || error_exit "Failure to build working directory"
-echo $(date +"%D %T") "Directory built"
-cd $EXTRACT
+echo  "###### Start CouchDB ######"
+$TARGET/setup/MVP_DB_Start.sh || error_exit "Failure installing CouchDB"
 
-# Download from Github
-wget -N $GITHUB -O $VERSION.zip || error_exit "Failure to download zip file"
-echo $(date +"%D %T") "MVP Github downloaded"
+echo  "###### UPdate CouchDB, build databases ######"
+$TARGET/setup/MVP_DB_Update.sh || error_exit "Failure updating CouchDB"
 
-cd $EXTRACT
+echo  "###### Load Libraries ######"
+$TARGET/setup/MVP_Libraries.sh || error_exit "Failure installing libraries"
 
-# Unzip the files, overwrite older existing files without prompting
-unzip -uo $EXTRACT/$VERSION.zip || error_exit "Failure unzipping file"
-echo $(date +"%D %T") "MVP unzipped"
+echo  "###### Test ######"
+$TARGET/setup/MVP_Test.sh || error_exit "Failure on testing"
 
-cd $EXTRACT/$RELEASE-$ZIP_DIR/MVP || error_exit "Failure moving to "$EXTRACT/$RELEASE"-"$ZIP_DIR
+echo  "###### Final Configuration ######"
+$TARGET/setup/MVP_Final.sh || error_exit "Failure on final configuration"
 
-# Move to proper directory
-mv * $TARGET
-echo $(date +"%D %T") "MVP moved"
+echo  "###### Clean-up ######"
+$TARGET/setup/MVP_Cleanup.sh || error_exit "Failure on final configuration"
 
-########################################
-echo "##### Relsease Specific Build #####"
-# Complete the release specific build
+echo "##### Release Install Completed Successfully, You should reboot the system #####"
 
-# Set permissions on script
-chmod +x $TARGET/setup/releaseScript.sh || error_exit "Failure setting permissions on release script (check file exists in MVP/scripts)"
-echo $(date +"%D %T") "Run permissions set"
-
-# Run script in download
-bash $TARGET/setup/ReleaseScript.sh || error_exit "Failure running release specific script"
-
-# Clean up temporary extraction directory
-rm -r $EXTRACT
-echo $(date +"%D %T") $EXTRACT" removed"
-
-echo $(date +"%D %T") "Install Complete"
+exit 0
