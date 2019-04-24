@@ -8,6 +8,8 @@ from Fan import Fan, ON, OFF
 from scd30 import SCD30
 from LogUtil import get_logger
 
+TARGET_CO2 = 800
+
 class CO2_stat(object):
     """Code associated with the thermostat controller"""
 
@@ -26,7 +28,7 @@ class CO2_stat(object):
                Raises:
                    None
         """
-        target_co2 = 1000
+        target_co2 = TARGET_CO2
         if co2 == None:
             co2, temp, rh = self._co2.get_data()
         msg = "{} {} {} {}".format("CO2:", co2, " Target CO2:", target_co2)

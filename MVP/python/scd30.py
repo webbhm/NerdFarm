@@ -25,6 +25,7 @@ Base data collection is working, other functions may be incomplete or missing
 
 from I2CUtil import I2C, bytesToWord
 import numpy
+import time
 
 path = "/dev/i2c-1"
 addr = 0x61
@@ -49,7 +50,7 @@ class SCD30:
     TEMP_DATA_INDEX = 1
     HUMIDITY_DATA_INDEX = 2
 
-    def __init__(self):
+    def __init__(self, test=False):
         """Create sensor object
            Args:
                None
@@ -61,6 +62,7 @@ class SCD30:
         self._addr = addr
         self._path = path
         self._i2c = I2C(path, addr)
+        self.start_periodic_measurement(test)
         
 
     
@@ -285,14 +287,37 @@ class SCD30:
         return self._addr
     
     def get_data(self, test=False):
-        while True:
-            if self.get_data_ready(test):
-               data = self.read_measurement(test)
-               if test:
-                   print("CO2: " + str(data[0]))
-                   print("Temp: " + str(data[1]))
-                   print("RH: " + str(data[2]))
-               return data[0], data[1], data[2]                    
+        """High level logic to simply get data
+           Args:
+               self
+               test
+           Returns:
+               co2: co2 value
+               temp: temperature value
+               rh: relative humidity value
+           Raises:
+               NameError: if error in logic (I2C Problem)
+        """                  
+        for x in range(0, 4): # Only give four reste tries before giving up
+            try:
+                while True:
+                    # Test if data is ready
+                    if self.get_data_ready(test):
+                       # fetch data 
+                       co2, temp, rh = self.read_measurement(test)
+                       if test:
+                           print("CO2: " + str(co2))
+                           print("Temp: " + str(temp))
+                           print("RH: " + str(rh))
+                       return co2, temp, rh
+                    time.sleep(1)
+            # try reset to see if can recover from errors
+            except Exception as e:
+                print(str(e))
+                self.__init__()
+                time.sleep(2)
+        # Give up if cannot fix the problems
+        raise NameError("Too Many Failures")                        
                 
         
 
@@ -306,30 +331,26 @@ def test():
                None
    """        
    print("Test SCD30")
+   # Set this to True for full info dump
    test = False
 
-   scd = SCD30()
+   scd = SCD30(test)
    print("Get Address")
    print(str(scd.get_configured_address()))
-   print("Create buffer") 
-#   buf = scd.fill_cmd_send_buf(scd.CMD_START_PERIODIC_MEASUREMENT, [1003], True)
-   print("Start Periodic Measurment")   
-#   scd.start_periodic_measurement4(buf)
-   scd.start_periodic_measurement(test)   
-   print("Get Ready State")
-   rdy = scd.get_data_ready(test)
-   print("Data Ready: " + str(rdy))
-   if rdy == 1:
-       print("Get Data")
-       data = scd.read_measurement(test)
-       print("CO2: " + str(data[0]))
-       print("Temp: " + str(data[1]))
-       print("RH: " + str(data[2]))
-   else:
-       print("No data available")
-
-
-          
+   print("Get Data")
+   try:
+       while True:
+           print("\n")
+           co2, temp, rh = scd.get_data(test)
+           print("CO2: " + str(co2))
+           print("Temp: " + str(temp))
+           print("RH: " + str(rh))
+       else:
+           print("No data available")
+       # Give time for periodic check to reset 
+       time.sleep(3)
+   except Exception as e:
+        print(str(e))
 
 if __name__ == "__main__":
     test()

@@ -27,10 +27,10 @@ class Humidistat(object):
                Raises:
                    None
         """
-        target_rh = 90
+        target_rh = 80
         if rh == None:
             co2, temp, rh = self._co2.get_data()
-        msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", target_rh)
+            msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", target_rh)
             
         self.logger.info(msg)    
         if rh > target_rh:
@@ -66,7 +66,7 @@ def main():
     ts.check()
 
 if __name__ == "__main__":
-    test()
+    main()
 
 
 
