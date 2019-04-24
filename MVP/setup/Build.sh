@@ -54,7 +54,6 @@ error_exit()
 }
 
 ####### Start Build ######################
-sudo apt-get update
 
 echo "##### Starting to build directories #####"
 # Build target directory
