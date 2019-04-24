@@ -90,9 +90,11 @@ chmod +x /home/pi/Build.sh
 ## Manual Build
 The following scripts (in /home/pi/MVP/scripts) can be run separately and in sequence if any errors are encountered.  Look within the scripts for single commands.
 
-- releaseScript.sh calls the following scripts:
-- releaseScript_DB.sh - installs the CouchDB code
-- releaseScript_Local.sh - builds libraries, starts the database and initializes things
+- MVP_Run_Scripts.sh calls the following scripts:
+- MVP_DB_Make.sh - build CouchDB from source code
+- MVP_DB_Start.sh - start the CouchDB server
+- MVP_DB_Init.sh - initialize CouchDB with database and indexes
+- releaseScript_Libraries.sh - install python libraries
 - releaseScript_Test.sh - calls Validate.sh to test the system
 - releaseScript_Final.sh - configures start-up and loads cron
 
