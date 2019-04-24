@@ -65,7 +65,7 @@ echo  "###### Start CouchDB ######"
 $TARGET/setup/MVP_DB_Start.sh || error_exit "Failure installing CouchDB"
 
 echo  "###### UPdate CouchDB, build databases ######"
-$TARGET/setup/MVP_DB_Update.sh || error_exit "Failure updating CouchDB"
+$TARGET/setup/MVP_DB_Init.sh || error_exit "Failure updating CouchDB"
 
 echo  "###### Load Libraries ######"
 $TARGET/setup/MVP_Libraries.sh || error_exit "Failure installing libraries"
