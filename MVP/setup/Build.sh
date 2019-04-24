@@ -93,4 +93,4 @@ echo "##### Build the NerdFarm #####"
 # Set permissions on script
 chmod +x $TARGET/setup/*.sh || error_exit "Failure setting permissions on release script (check file exists in MVP/scripts)"
 echo $(date +"%D %T") "Run Build Scripts"
-# $TARGET/setup/MVP_RunScripts.sh || error_exit "Failure installing CouchDB"
+$TARGET/setup/MVP_RunScripts.sh || error_exit "Failure Running All Scripts"
