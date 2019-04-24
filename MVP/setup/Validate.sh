@@ -74,7 +74,7 @@ printf "\n---Test Sensors---\n"
 
 echo "##### Test si7021 ####"
 cmd=$main_dir/python/SI7021.py
-python $cmd &> /dev/null
+python3 $cmd &> /dev/null
 if [ $? = 0 ]
 then
     printf "SI7021 OK\n"
@@ -90,16 +90,16 @@ printf "Logged sensor data"
 printf "\n---Test Actuators---\n"
 echo "##### Test Thermostat #####"
 cmd3=$main_dir/python/Thermostat.py
-python $cmd3 || error_exit "Failure testing thermostat"
+python3 $cmd3 || error_exit "Failure testing thermostat"
 printf "Thermostat OK\n"
 
 echo "##### Test Lights Off #####"
 cmd4=$main_dir/python/LightOff.py
-python $cmd4 || error_exit "Failure testing Lights Off"
+python3 $cmd4 || error_exit "Failure testing Lights Off"
 
 echo "##### Test Lights On #####"
 cmd5=$main_dir/python/LightOn.py
-python $cmd5 || error_exit "Failure testing Lights On"
+python3 $cmd5 || error_exit "Failure testing Lights On"
 echo "Lights On OK"
 
 echo "##### Test Webcam #####"
