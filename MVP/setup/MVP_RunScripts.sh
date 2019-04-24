@@ -56,7 +56,7 @@ error_exit()
 # Update and refresh system
 echo  "###### Update and Refresh apt-get ######"
 sudo apt-get update
-sudo apt-get refresh
+sudo apt-get upgrade -y
 
 echo  "###### Install CouchDB - downloaded version ######"
 $TARGET/setup/MVP_DB_Dwn.sh || error_exit "Failure installing CouchDB"
