@@ -34,7 +34,8 @@ RELEASE=NerdFarm             # Package (repository) to download
 VERSION=master         # github version to work with
 #ZIP_DIR=3.1.8
 ZIP_DIR=master
-GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
+#GITHUB=https://github.com/futureag/$RELEASE/archive/$VERSION.zip    # Address of Github archive
+GITHUB=https://github.com/webbhm/$RELEASE/archive/$VERSION.zip    # Address of Github archive
 
 echo $EXTRACT
 echo $TARGET
