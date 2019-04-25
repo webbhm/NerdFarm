@@ -59,7 +59,7 @@ sudo apt-get update
 sudo apt-get upgrade -y
 
 echo  "###### Install CouchDB - downloaded version ######"
-$TARGET/setup/MVP_DB_Bld.sh || error_exit "Failure installing CouchDB"
+$TARGET/setup/MVP_DB_Build.sh || error_exit "Failure installing CouchDB"
 
 echo  "###### Start CouchDB ######"
 $TARGET/setup/MVP_DB_Start.sh || error_exit "Failure installing CouchDB"
