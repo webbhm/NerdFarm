@@ -37,7 +37,3 @@ cd ./rel/couchdb/
 sudo cp -Rp * /home/couchdb
 sudo chown -R couchdb:couchdb /home/couchdb
 #cd /home/couchdb/etc
-
-# Clean up
-sudo rm /home/pi/erlang_solutions.asc
-sudo rm /home/pi/apache-couchdb-$COUCH_VER.tar.gz
