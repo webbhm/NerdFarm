@@ -51,7 +51,7 @@ sudo chmod +x $RC_LOCAL
 sudo chmod 666 /home/pi/MVP/logs/*
 
 echo "##### Load Cron ####"
-CMD=$TARGET/scripts/Cron.sh
+CMD=$TARGET/scripts/MVP_Cron.sh
 chmod +x $CMD
 $CMD
 
