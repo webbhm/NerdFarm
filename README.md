@@ -1,6 +1,6 @@
 # NerdFarm
 Code for the building of the NeredFarm brain
-3/7/2019 - this is currently a work in progress, don't assume it works!!
+4/27/2019 - The code and build are working and stable.
 ## Background 
 
 Code and instructions for building the 'brain' of the controled environment hydroponics unit.
@@ -10,7 +10,7 @@ The MVP (Minimal Viable Product) is a simplified version of the MIT OpenAg Food 
 
 ## Assumptions
 
- - Follows the instructions for building a Raspbian (Noobs) system.
+ - Follows the (instructions)[https://www.raspberrypi.org/downloads/raspbian/] for building a Raspbian system.
  - Configure the environment (see below).  Turn VNC on, this is the easiest way to view multiple Raspberry Pis without needing separate keyboards and monitors for each.  You can view all the Raspberries on your local network through one Raspberry, or download VNC to a PC and access them through a PC.
  
  ## Building multiple MVPs
@@ -87,6 +87,9 @@ wget raw.github.com/webbhm/NerdFarm/master/MVP/setup/Build.sh
 chmod +x /home/pi/Build.sh
 /home/pi/Build.sh
 ```
+
+Note: This will take a while (1.5 hours) on a Pi 3B+.  Most of the time is needed to install the Pandas library, with the CouchDB build being second.
+
 ## Manual Build
 The following scripts (in /home/pi/MVP/scripts) can be run separately and in sequence if any errors are encountered.  Look within the scripts for single commands.
 
