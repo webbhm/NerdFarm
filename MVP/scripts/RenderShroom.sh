@@ -32,6 +32,10 @@ python3 "$python_dir"TempChart.py
 
 echo "Build humidity graph"
 #create the humidity graph
+python3 "$python_dir"HumidityChart.py
+
+echo "Build dewpoint graph"
+#create the dewpoint graph
 python3 "$python_dir"DewpointChart.py
 
 echo "Build VPD graph"
