@@ -123,7 +123,7 @@ def buildChart(data, test=False):
     line_chart.add('Humidity', [float(row) for row in d3['Humidity']], secondary=True)
     line_chart.add('Temperature',[float(row) for row in d3['Temperature']])
     line_chart.add('Dewpoint', d3['Dewpoint'])
-    file_name = '/home/pi/MVP/web/humidity_chart.svg'    
+    file_name = '/home/pi/MVP/web/dewpoint_chart.svg'    
     line_chart.render_to_file(file_name)
     if test:
         print("File: " + file_name)
