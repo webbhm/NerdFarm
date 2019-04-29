@@ -4,8 +4,7 @@
 # This program selects pictures within a date range, then selects one per day and converts them to a GIF
 
 import os
-from datetime import datetime
-from env import env
+from datetime import datetime, timedelta
 from PIL import Image
 
 def getPics(dir, type, start_date, end_date, test=False):
@@ -80,8 +79,33 @@ def resize_images(images, size, test=False):
     for img in images:
         rimg = img.resize(size)
         out.append(rimg)
-    return out        
-        
+    return out
+
+def get_start_date(test=False):
+    '''Start date is the beginning of a trial - set in env.py
+        If env.py is missing, or data is invalid, then default to 4 weeks ago
+           Args:
+               None:
+           Returns:
+               start_date
+           Raises:
+               None
+    '''  
+    start_date = None
+    tmp_date = str(datetime.now() - timedelta(days=30))
+    try:
+        from env import env
+        start_date=env["trials"][0]["start_date"]
+        if start_date < tmp_date:
+            start_date = tmp_date
+    except Exception as e:
+        if test:
+            print(e)
+        start_date  = tmp_date
+    if test:
+        print("Start Date: " + start_date)
+    return start_date
+
 def make_gif(images, test=False):
     '''Convert set of images to a GIF and saves to file
            Args:
@@ -110,7 +134,7 @@ def main(test=False):
     '''  
     
     # Variables to control source and output
-    start_date=env["trials"][0]["start_date"]
+    start_date = get_start_date(test)
     end_date=str(datetime.now())
     # Source of images
     dir="/home/pi/MVP/pictures/"
@@ -126,4 +150,4 @@ def main(test=False):
     make_gif(pics, test)
 
 if __name__=="__main__":
-    main(True)    
+    main()    
