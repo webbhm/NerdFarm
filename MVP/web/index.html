@@ -48,10 +48,11 @@ div.tab button.active {
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'Temperature')">Temperature</button>
   <button class="tablinks" onclick="openTab(event, 'Humidity')">Humidity</button>
+  <button class="tablinks" onclick="openTab(event, 'Dewpoint')">Dewpoint</button>
+  <button class="tablinks" onclick="openTab(event, 'VaporPressure')">Vapor Pressure</button>
   <button class="tablinks" onclick="openTab(event, 'Lux')">Lux</button>
   <button class="tablinks" onclick="openTab(event, 'Conductivity')">Electrical Conductivity</button>
   <button class="tablinks" onclick="openTab(event, 'CO2')">CO2</button>
-  <button class="tablinks" onclick="openTab(event, 'VaporPressure')">Vapor Pressure</button>
   <button class="tablinks" onclick="openTab(event, 'Camera')">Camera</button>
   <button class="tablinks" onclick="openTab(event, 'GIF')">GIF</button>
   <button class="tablinks" onclick="openTab(event, 'About')">About</button>
@@ -72,10 +73,25 @@ div.tab button.active {
     </object>
 </div>
 
+<div id="Dewpoint" class="tabcontent">
+  <h3>Dewpoint</h3>
+    <object id="dewpointChartImage" type="image/svg+xml" data="dewpoint_chart.svg"/>
+	"Your browser does not support SVG
+    </object>
+</div>
+
 <div id="Lux" class="tabcontent">
   <h3>Lux</h3>
     <object id="luxChartImage" type="image/svg+xml" data="lux_chart.svg"/>
 	"Your browser does not support SVG
+    </object>
+</div>
+
+<div id="VaporPressure" class="tabcontent">
+  <h3>Vapor Pressure Deficit</h3>
+  <p>Calculation of VPD from Temperature and Humidity</p>
+    <object id="VPDChartImage" type="image/svg+xml" data="vpd_chart.svg"/>
+	Your browser does not support SVG
     </object>
 </div>
 
@@ -95,20 +111,12 @@ div.tab button.active {
     </object>
 </div>
 
-<div id="VaporPressure" class="tabcontent">
-  <h3>Vapor Pressure Deficit</h3>
-  <p>Calculation of VPD from Temperature and Humidity</p>
-    <object id="VPDChartImage" type="image/svg+xml" data="vpd_chart.svg"/>
-	"Your browser does not support SVG
-    </object>
-</div>
-
 <div id="Camera" class="tabcontent">
   <h3>Camera</h3>
   <p>Latest picture goes here.</p>
-  <p>
-  <img id="latestCameraImage" src="image.jpg" alt="Latest MVP image" style="width:640px;height:480px;">
-  </p>
+  <object id="latestCameraImage" src="image.jpg" alt="Latest MVP image" style="width:640px;height:480px;">
+	Image not available
+  </object>
 </div>
 
 <div id="About" class="tabcontent">
@@ -141,6 +149,8 @@ function updateImages() {
 	    .setAttribute('data', 'temp_chart.svg?' + randomNumber);
     document.getElementById("humidityChartImage")
 	    .setAttribute('data', 'humidity_chart.svg?' + randomNumber);
+    document.getElementById("dewpointChartImage")
+	    .setAttribute('data', 'dewpoint_chart.svg?' + randomNumber);
     document.getElementById("latestCameraImage")
 	    .setAttribute('data', 'image.jpg?' + randomNumber);
     document.getElementById("luxChartImage")
