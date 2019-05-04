@@ -17,7 +17,11 @@ import math
 #use the first key for attribute type
 #order descending so when limit the results will get the latest at the top
 
+SUBJECT="Air"
 ATTRIBUTE="Temperature"
+FILE_NAME="/home/pi/MVP/web/temp_chart.svg"
+LABEL="Temperature"
+UNITS="Degree C"
 
 def getResults(test=False):
     '''Run a Mango query to get the data
@@ -31,7 +35,7 @@ def getResults(test=False):
 
     ts = datetime.utcnow().isoformat()[:19]
     header={"Content-Type":"application/json"}
-    payload={"selector":{"start_date.timestamp":{"$lt":ts}, "status.status_qualifier":"Success", "activity_type":"Environment_Observation","subject.name":"Air","subject.attribute.name":ATTRIBUTE}, "fields":["start_date.timestamp", "participant.name", "subject.location", "subject.attribute.value"], "sort":[{"start_date.timestamp":"desc"}], "limit":250}
+    payload={"selector":{"start_date.timestamp":{"$lt":ts}, "status.status_qualifier":"Success", "activity_type":"Environment_Observation","subject.name":SUBJECT,"subject.attribute.name":ATTRIBUTE}, "fields":["start_date.timestamp", "participant.name", "subject.location", "subject.attribute.value"], "sort":[{"start_date.timestamp":"desc"}], "limit":250}
     url='http://localhost:5984/mvp_data/_find'
     if test:
         print("Payload: " + str(payload))
@@ -79,16 +83,13 @@ def buildChart(data, test=False):
     #line_chart = pygal.Line(range=(350, 2000))
     line_chart = pygal.Line()    
     line_chart.title = ATTRIBUTE
-    line_chart.y_title="Degree C"
+    line_chart.y_title=UNITS
     line_chart.x_title="Timestamp (hover over to display date)"
     
     # Pull the values from the rows and build a list
     l=len(d2[0])
     if test:
         print("Len: " + str(l))
-    # Values for chart range
-    mx = 0  # maximum value
-    mn = 5000  # minimum value
     # holder for data outputs    
     dta = []
     # Loop all data sets
@@ -101,12 +102,6 @@ def buildChart(data, test=False):
         else:
             # values
             dta.insert(ix, [float(row[ix]) for row in d2])
-            mx2 = max(dta[ix])
-            mn2 = min(dta[ix])
-            if mx2 > mx:
-                mx = mx2
-            if mn2 < mn:
-                mn = mn2
 
         # reverse the value order
         dta[ix].reverse()
@@ -118,10 +113,9 @@ def buildChart(data, test=False):
                 print("Label: " + str(df.columns[ix-1]))
                 #print(str(dta[ix]))
     # set min/max scale
-    chart_name = '/home/pi/MVP/web/temp_chart.svg'
-    line_chart.render_to_file(chart_name)
+    line_chart.render_to_file(FILE_NAME)
     if test:
-        print("Chart: " + chart_name)
+        print("Chart: " + FILE_NAME)
 
 
 def buildMultiChart(test=False):
@@ -143,6 +137,7 @@ def buildMultiChart(test=False):
                 print("Records: " +str(r_cnt))
             d2=cleanDate(data, test)
             buildChart(d2, test)
+            print(ATTRIBUTE + " chart created, records: " + str(r_cnt) + " to " + FILE_NAME)
         else:
             print("No records selected")
     else:
