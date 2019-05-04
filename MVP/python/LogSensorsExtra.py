@@ -31,7 +31,7 @@ class LogSensorExtra(object):
             status_qualifier = 'Success'
             if test:
                 status_qualifier = 'Test'
-            saveList([self._activity_type, '', name, 'Air', 'Temperature', "{:10.1f}".format(temp), 'Farenheight', 'DS18B20-' + str(sensor), status_qualifier,''])
+            saveList([self._activity_type, '', name, 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier,''])
             if test:
                 print("{}, {}, {:10.1f}".format(name, status_qualifier, temp))
         except Exception as e:
@@ -39,7 +39,7 @@ class LogSensorExtra(object):
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format(name, status_qualifier, temp))
-            saveList([self._activity_type, '', name, 'Air', 'Temperature', '', 'Farenheight', 'DS18B20-' + str(sensor), status_qualifier, str(e)])            
+            saveList([self._activity_type, '', name, 'Air', 'Temperature', '', 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier, str(e)])            
         
     def getLightCanopyLUXObsv(self, test=False):
         '''Create json structure for LUX'''
@@ -136,7 +136,7 @@ class LogSensorExtra(object):
             Imports are in the function to avoid loading unnecessary code
         '''
 
-        self.getOneWire(True)
+        self.getOneWire(test)
 
         self.getLightCanopyLUXObsv(test)
 
@@ -149,7 +149,7 @@ class LogSensorExtra(object):
 if __name__=="__main__":
     '''Setup for calling from script'''
     lg = LogSensorExtra()                           
-    lg.makeEnvObsv(True)
+    lg.makeEnvObsv()
 
     
 
