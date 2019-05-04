@@ -20,13 +20,13 @@ CRON_LOG=/home/pi/MVP/logs/cron.log
 
 # m h  dom mon dow   command
 # Check thermostat every minute
-*/1 * * * * python $PY_PATH/Thermostat.py >> $CRON_LOG 2>&1
+*/1 * * * * pytho3n $PY_PATH/Thermostat.py >> $CRON_LOG 2>&1
 
 # Turn lights on at 6AM
-0 6 * * * python $PY_PATH/LightOn.py >> $CRON_LOG 2>&1
+0 6 * * * python3 $PY_PATH/LightOn.py >> $CRON_LOG 2>&1
 
 # Turn lights off at 22:30 (10:30PM)
-30 22 * * * python $PY_PATH/LightOff.py >> $CRON_LOG 2>&1
+30 22 * * * python3 $PY_PATH/LightOff.py >> $CRON_LOG 2>&1
 
 # Log the sensors every 20 minutes
 */20 * * * * $MVP_SCRIPTS/LogMVP.sh >> $CRON_LOG 2>&1
