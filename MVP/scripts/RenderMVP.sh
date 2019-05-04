@@ -26,6 +26,9 @@ echo "$pic_dir$FN"
 #Since will be overwriting, need to confirm with "yes"
 yes | cp "$pic_dir$FN" "$web_dir"image.jpg
 
+echo Build GIF
+python3 "$python_dir"Img2Gif.py
+
 #create the temperature graph
 echo "Build temperature graph"
 python3 "$python_dir"TempChart.py
