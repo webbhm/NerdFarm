@@ -6,25 +6,28 @@
 
 from Relay import *
 import time
-from LogUtil import get_logger
-#from CouchUtil import saveList
-
-ON = 1
-OFF = 0
+from LogUtil import Logger
+from CouchUtil import CouchUtil
 
 class Humidifier(object):
     """Code associated with the Humidifier"""
 
-    relay = None
+    ON = 1
+    OFF = 0
     target_rh = 0
 
-    def __init__(self):
-        self.logger = get_logger("Humidifier")
-        self.logger.debug("initialize Fan object")
-        self.relay = Relay()
-        self._relay = 29
+    def __init__(self, logger=None):
+        self._logger = logger
+        if logger == None:
+            self._logger = Logger("Humidifier", Logger.INFO)
+        self._logger.debug("initialize Fan object")
+        self._relay = Relay(self._logger)
+        self._pin = 29
+        self._couch = CouchUtil(self._logger)
+        # flag for if in testing
+        self._test = False
 
-    def set(self, state, test=False):
+    def set(self, state):
         """Set the humidifier to state
             Args:
                 state: condition from other source
@@ -33,12 +36,12 @@ class Humidifier(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_state")
-        self.relay.set_state(self._relay, state)
+        self._logger.debug("In set_state")
+        self._relay.set_state(self._pin, state)
 
         
 
-    def set_on(self, test=False):
+    def set_on(self):
         """Turn the humidifier on
             Args:
                 None
@@ -47,7 +50,7 @@ class Humidifier(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_on")
+        self._logger.debug("In set_on")
         self.set(ON, test)
 
     def set_off(self):
@@ -59,10 +62,13 @@ class Humidifier(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_off")
+        self._logger.debug("In set_off")
         self.set(OFF, test)
+        
+    def get_state(self):
+        return self._relay.get_state(self._pin)
 
-    def log_state(self, value, test=False):
+    def log_state(self, value):
         """Send state change to database
            Args:
                value: state change
@@ -73,11 +79,11 @@ class Humidifier(object):
                None
         """
         status_qualifier = 'Success'
-        if test:
+        if self._test:
             status_qualifier = 'Test'
-        #saveList(['State_Change', '', 'Side', 'Fan', 'State', value, 'state', 'Fan', status_qualifier, ''])
+        self._couch.saveList(['State_Change', '', 'Side', 'Fan', 'State', value, 'state', 'Fan', status_qualifier, ''])
 
-def test():
+def test(level=Logger.DEBUG):
     """Self test
            Args:
                None
@@ -87,21 +93,26 @@ def test():
                None
     """
     hm = Humidifier()
+    hm._test = True
+    hm._logger.setLevel(level)
     print("Test")
-    print("State: " + str(hm.relay.get_state(hm._relay)))
+    print("State: " + str(hm.get_state()))
     print("Turn Humidifier On")
-    hm.set(ON, test)
-    print("State: " + str(hm.relay.get_state(hm._relay)))
+    hm.set(ON)
+    print("State: " + str(hm.get_state()))
     time.sleep(10)
 
     print("Turn Humidifier Off")
     hm.set(OFF)
-    print("State: " + str(hm.relay.get_state(hm._relay)))
+    print("State: " + str(hm.get_state()))
     time.sleep(2)
 
     print("Done")
-
+    
+def validate():
+    test(Logger.INFO)
+    
 if __name__ == "__main__":
-    test()
+    validate()
 
 

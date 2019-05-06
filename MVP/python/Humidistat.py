@@ -4,17 +4,18 @@
 # Thermostat controller that reads the temperature sensor and adjusts the exhaust fan
 
 """
-from Humidifier import Humidifier, ON, OFF
+from Humidifier import Humidifier
 from scd30 import SCD30
-from LogUtil import get_logger
+from LogUtil import Logger
 import time
 
 class Humidistat(object):
     """Code associated with the thermostat controller"""
 
     def __init__(self):
-        self.logger = get_logger("Humidistat")
-        self.logger.debug("initialize Humidistat object")
+        self._logger = Logger("Humidistat")
+        self._logger.setLevel(Logger.INFO)
+        self._logger.debug("initialize Humidistat object")
         self._co2 = SCD30()
         self._humidifier = Humidifier()
 
@@ -31,14 +32,13 @@ class Humidistat(object):
         if rh == None:
             co2, temp, rh = self._co2.get_data()
             msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", target_rh)
-            
-        self.logger.info(msg)    
+            self._logger.info(msg)    
         if rh > target_rh:
-            self._humidifier.set(OFF, test)
+            self._humidifier.set(Humidifier.OFF)
         else:
-            self._humidifier.set(ON, test)
+            self._humidifier.set(Humidifier.ON)
 
-def test():
+def test(level=Logger.DEBUG):
     """Self test
            Args:
                None
@@ -50,23 +50,27 @@ def test():
     test = True
     print("Test")
     ts = Humidistat()
-    ts.check(80, True)
+    ts._logger.setLevel(level)
+    ts.check(80)
     print("Check Humidity 80")
     time.sleep(10)
-    ts.check(99, True)
+    ts.check(99)
     print("Check Humidity 99")
     time.sleep(10)    
-    ts.check(None, True)
+    ts.check(None)
     print("Check Humidity None")
     print("Turn Off")
-    ts._humidifier.set(OFF, test)
+    ts._humidifier.set(OFF)
+             
+def validate():
+    test(Logger.INFO)
     
 def main():
     ts = Humidistat()
     ts.check()
 
 if __name__ == "__main__":
-    main()
+    test()
 
 
 

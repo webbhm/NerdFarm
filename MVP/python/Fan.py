@@ -5,27 +5,31 @@
 """
 
 from env import env
-from Relay import *
+from Relay import Relay, FAN_PIN
 import time
-from LogUtil import get_logger
-#from CouchUtil import saveList
-
-ON = 1
-OFF = 0
+from LogUtil import Logger
+from CouchUtil import CouchUtil
 
 class Fan(object):
     """Code associated with the exhaust fan"""
+    ON = 1
+    OFF = 0
 
-    relay = None
     target_temp = 0
 
-    def __init__(self):
-        self.logger = get_logger("Fan")
-        self.logger.debug("initialize Fan object")
-        self.relay = Relay()
-        self.fan_relay = fanPin
-
-    def set(self, state, test=False):
+    def __init__(self, logger=None):
+        self._logger = logger
+        self._logger = logger
+        if logger == None:
+           self._logger = Logger("Relay", Logger.INFO)
+        self._logger.debug("initialize Fan object")        
+        self._relay = Relay(self._logger)
+        self.fan_relay = FAN_PIN
+        self._couch = CouchUtil(self._logger)
+        # flag for testing
+        self._test = False
+        
+    def set(self, state):
         """Set the fan to state
             Args:
                 state: condition from other source
@@ -34,12 +38,14 @@ class Fan(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_state")
-        self.relay.set_state(self.fan_relay, state)
+        self._logger.debug("In set_state")
+        prior = self._relay.get_state(self.fan_relay)
+        self._relay.set_state(self.fan_relay, state)
+        current = self._relay.get_state(self.fan_relay)
+        if prior != current:
+            self.log_state(state)
 
-        
-
-    def set_fan_on(self, test=False):
+    def set_fan_on(self):
         """Turn the fan on
             Args:
                 None
@@ -48,7 +54,7 @@ class Fan(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_fan_on")
+        self._logger.debug("In set_fan_on")
         self.set(ON, test)
 
     def set_fan_off(self):
@@ -60,10 +66,10 @@ class Fan(object):
             Raises:
                 None
         """
-        self.logger.debug("In set_fan_off")
+        self._logger.debug("In set_fan_off")
         self.set(OFF, test)
 
-    def log_state(self, value, test=False):
+    def log_state(self, value):
         """Send state change to database
            Args:
                value: state change
@@ -74,11 +80,15 @@ class Fan(object):
                None
         """
         status_qualifier = 'Success'
-        if test:
+        if self._test:
             status_qualifier = 'Test'
-        #saveList(['State_Change', '', 'Side', 'Fan', 'State', value, 'state', 'Fan', status_qualifier, ''])
+        self._couch.saveList(['State_Change', '', 'Side', 'Fan', 'State', value, 'state', 'Fan', status_qualifier, ''])
+        self._logger.debug("{}, {:1}, {} {}".format("Fan State Change: Value: ", value, " Status Qualifier: ", status_qualifier))        
+        
+    def getState(self):
+        return self._relay.get_state(self.fan_relay)
 
-def test():
+def test(level = Logger.DEBUG):
     """Self test
            Args:
                None
@@ -88,19 +98,24 @@ def test():
                None
     """
     fan = Fan()
+    fan._logger.setLevel(level)
+    fan._test = True
     print("Test")
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
+    print("State: " + str(fan.getState()))
     print("Turn Fan On")
-    fan.set(ON, test)
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
+    fan.set(fan.ON)
+    print("State: " + str(fan.getState()))
     time.sleep(2)
 
     print("Turn Fan Off")
-    fan.set(OFF)
-    print("State: " + str(fan.relay.get_state(fan.fan_relay)))
+    fan.set(fan.OFF)
+    print("State: " + str(fan.getState()))
     time.sleep(2)
 
     print("Done")
+    
+def validate():
+    test(Logger.INFO)
 
 if __name__ == "__main__":
     test()

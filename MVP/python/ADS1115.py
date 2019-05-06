@@ -27,6 +27,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import time
+from LogUtil import Logger
 
 # Register and other configuration values:
 ADS1x15_DEFAULT_ADDRESS        = 0x48
@@ -62,10 +63,14 @@ PATH = "/dev/i2c-1"
 from I2CUtil import I2C, bytesToWord
 
 class ADS1115(object):
-    def __init__(self):
+    def __init__(self, logger=None):
         self._path = PATH
         self._addr = ADS1x15_DEFAULT_ADDRESS
         self._i2c = I2C(self._path, self._addr)
+        self._logger = logger
+        if logger == None:
+            self._logger = Logger("ADS1115", Logger.INFO)
+        
         
     def read_adc(self, channel, gain=1, data_rate=None):
         """High level read function for the ADC
@@ -147,12 +152,37 @@ class ADS1115(object):
         if data_rate not in ADS1115_CONFIG_DR:
             raise ValueError('Data rate must be one of: 8, 16, 32, 64, 128, 250, 475, 860')
         return ADS1115_CONFIG_DR[data_rate]    
-    
-
-
-    
 
 def test():
+   """Loop data collection
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+   """
+   validate()
+   channel = 0
+   gain=1
+   data_rate = None    
+   adc = ADS1115()
+   print("ADS1115")
+   while True:
+       value = adc.read_adc(channel, gain, data_rate)
+       print("Value " + str(value))
+       time.sleep(5)
+   
+def validate():
+    """Exercise all the ADS1115 functions
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+    """
+    
     print("Test ADC")
    
     channel = 0

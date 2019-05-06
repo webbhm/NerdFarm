@@ -4,21 +4,21 @@
 # Thermostat controller that reads the temperature sensor and adjusts the exhaust fan
 
 """
-from Fan import Fan, ON, OFF
+from Fan import Fan
 from SI7021 import SI7021
 from env import env
-from LogUtil import get_logger
+from LogUtil import Logger
 
 class Thermostat(object):
     """Code associated with the thermostat controller"""
 
     def __init__(self):
-        self.logger = get_logger("Thermostat")
-        self.logger.debug("initialize Thermostat object")
-        self._temp = SI7021()
-        self._fan = Fan()
+        self._logger = Logger("Thermostat")
+        self._logger.debug("initialize Thermostat object")
+        self._temp = SI7021(self._logger)
+        self._fan = Fan(self._logger)
 
-    def check(self, temp=None, test=False):
+    def check(self, temp=None):
         """Adjust the fan depending upon the temperature
                Args:
                    temp: optional test temperature
@@ -32,13 +32,13 @@ class Thermostat(object):
         # Get target temperature from file
         target_temp = env['thermostat']['targetTemp']
         msg = "{} {} {} {}".format("Temp:", temp, " Target Temp:", target_temp)
-        self.logger.info(msg)    
+        self._logger.info(msg)    
         if temp > target_temp:
-            self._fan.set(ON, test)
+            self._fan.set(Fan.ON)
         else:
-            self._fan.set(OFF, test)
+            self._fan.set(Fan.OFF)
 
-def test():
+def test(level=Logger.DEBUG):
     """Self test
            Args:
                None
@@ -49,13 +49,17 @@ def test():
     """
     print("Test")
     ts = Thermostat()
-    ts.check(40, True)
+    ts._logger.setLevel(level)
+    ts.check(40)
     print("Check Thermostat 40")
-    ts.check(20, True)
+    ts.check(20)
     print("Check Thermostat 20")
-    ts.check(None, True)
+    ts.check(None)
     print("Check Thermostat None")
     
+def validate():
+    test(Logger.INFO)
+
 def main():
     ts = Thermostat()
     ts.check()

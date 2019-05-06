@@ -11,6 +11,7 @@ https://www.silabs.com/documents/public/data-sheets/Si7021-A20.pdf
 
 import time
 from I2CUtil import I2C, bytesToWord
+from LogUtil import Logger
 
 path = "/dev/i2c-1"
 # Device I2C address
@@ -39,10 +40,14 @@ firm_rev_1_2 = 0x88
 
 class SI7021(object):
 
-   def __init__(self):
+   def __init__(self, logger=None):
+    
       self._addr = addr
       self._path = path
       self._i2c = I2C(path, addr)
+      self._logger = logger
+      if logger == None:
+          self._logger = Logger("SI7021", Logger.INFO)
  
    def calc_humidity(self, read):
       """Calculate relative humidity from sensor reading
@@ -129,20 +134,20 @@ class SI7021(object):
            Raises:
                None
        """
-       print("\nGet Revision")
+       self._logger.info("\nGet Revision")
 #       msgs = self._i2c.get_msg([firm_rev_1_1, firm_rev_1_2], 3)
        msgs = self._i2c.get_data([firm_rev_1_1, firm_rev_1_2], 0.03, 3)
        # Need to test, may error out on some conditions
        if not ((msgs is None) or (msgs[0].data is None)):
           rev = msgs[0].data[0]
           if rev == 0xFF:
-              print("version 1.0")
+              self._logger.info("version 1.0")
           elif rev == 0x20:
-              print("version 2.0")
+              self._logger.info("version 2.0")
           else:
-              print("Unknown")
+              self._logger.error("Unknown")
        else:
-          print("No Revision Data Available")
+          self._logger.error("No Revision Data Available")
           return rev        
 
    def get_id1(self):
@@ -154,14 +159,14 @@ class SI7021(object):
            Raises:
                 None
        """
-       print("\nGet ID 1")
+       self._logger.info("\nGet ID 1")
        try:
            msgs = self._i2c.get_data([read_id_1_1, read_id_1_2], 0.05, 4)
            ret= msgs[0].data
            for data in ret:
-               print("ID: " + str(hex(data)))
+               self._logger.info("ID: " + str(hex(data)))
        except Exception as e:
-          print("Error getting msgs " + str(e))
+          self._logger.error("Error getting msgs " + str(e))
 
    def get_id2(self):
        """Print the second part of the chips unique id
@@ -174,22 +179,22 @@ class SI7021(object):
                None
        """
            
-       print("\nGet ID 2")
+       self._logger.info("\nGet ID 2")
        msgs = self._i2c.get_data([read_id_2_1, read_id_2_2], 0.05, 4)
        ret= msgs[0].data
        for data in ret:
-           print("ID" + str(hex(data)))
+          self._logger.info("ID" + str(hex(data)))
        sna3 = msgs[0].data[0]
        if sna3 == 0x00:
-           print("Device: Engineering Sample")
+           self._logger.info("Device: Engineering Sample")
        elif sna3 == 0xFF:
-           print("Device: Engineering Sample")       
+           self._logger.info("Device: Engineering Sample")       
        elif sna3 == 0x14:
-           print("Device: SI7020")
+           self._logger.info("Device: SI7020")
        elif sna3 == 0x15:
-           print("Device: SI7021")
+           self._logger.info("Device: SI7021")
        else:
-           print("Unknown")
+           self._logger.error("Unknown")
 
    def reset(self):
        """Reset the device
@@ -201,12 +206,28 @@ class SI7021(object):
                None
        """
             
-       print("\nReset")
+       self._logger.info("\nReset")
        rev_1 = self._i2c.msg_write([reset_cmd])
-       print("Reset: " + str(rev_1))
+       self._logger.info("Reset: " + str(rev_1))
     
 def test():
-    """Test the SI7021 functions
+    """Exercise all the SI7021 functions
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+    """
+    validate()
+    si=SI7021()
+    while True:
+       temp = si.get_tempC()
+       si._logger.info("Temp: " + str(temp))
+       time.sleep(5)
+       
+def validate():
+    """Exercise all the SI7021 functions
         Args:
             None
         Returns:
@@ -216,6 +237,7 @@ def test():
    """
     print("Test SI701")
     si = SI7021()
+    si._logger.setLevel(Logger.INFO)
     print("\nGet Humidity - no hold split")    
     rh = si.get_humidity()        
     if rh != None:
@@ -245,6 +267,6 @@ def test():
     si.get_id1()
     print("\nTest Get ID 2")        
     si.get_id2()
-
+    
 if __name__ == "__main__":
     test()

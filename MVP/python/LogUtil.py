@@ -3,45 +3,64 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-def get_logger(name="MvpLogger"):
-    """Create and return a logger
+class Logger(object):
 
-    Builds a Python logger to:
-      log everything to the screen
-      WARNING to a rotating file
+    DETAIL = 5
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    ERROR = logging.ERROR
+    lvl = {0: DETAIL, 1: DEBUG, 2: INFO, 3: ERROR}
 
-    Args:
-        name: The name given to the logger
-    Returns:
-        logger: the logger object
-    Raises:
-        None
-    """
-    fname = "/home/pi/MVP/logs/mvp.log"
-    fmt = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-    # build logger
-    logger = logging.getLogger('mvp.'+name)
-    logger.setLevel(logging.DEBUG)
+    def __init__(self, name, lvl=INFO):
+        """Create and return a logger
 
-    # Rotating File handler - only send WARNING and above
-    file_handler = TimedRotatingFileHandler(fname, when="d", interval=30, backupCount=3)
-    file_handler.setLevel(logging.WARNING)
-    formater = logging.Formatter(fmt)
-    file_handler.setFormatter(formater)
+        Builds a Python logger to:
+          log everything to the screen
+          WARNING to a rotating file
 
-    # Screen handler - display all (DEBUG, defaults above)
-    screen_handler = logging.StreamHandler()
-    screen_formater = logging.Formatter("%(levelname)s - %(name)s - %(message)s")
-    screen_handler.setFormatter(screen_formater)
+        Args:
+            name: The name given to the logger
+        Returns:
+            logger: the logger object
+        Raises:
+            None
+        """
 
-    # Add handlers
-    logger.addHandler(file_handler)
-    logger.addHandler(screen_handler)
+# Create logger
+        self._logger = logging.getLogger('mvp.'+name)
+        self._logger.setLevel(lvl)
+        # Rotating File handler
+        fname = "/home/pi/MVP/logs/logger.log"
+        file_handler = TimedRotatingFileHandler(fname, when="d", interval=30, backupCount=3)
+        self._logger.setLevel(lvl)        
+        #Set formaat
+        fmt = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+        formater = logging.Formatter(fmt)
+        file_handler.setFormatter(formater)
+        # Screen handler - display all (DEBUG, defaults above)
+        screen_handler = logging.StreamHandler()
+        screen_formater = logging.Formatter("%(levelname)s - %(name)s - %(message)s")
+        screen_handler.setFormatter(screen_formater)
+        # Add handlers
+        self._logger.addHandler(file_handler)
+        self._logger.addHandler(screen_handler)
 
-    return logger
+    def setLevel(self, level):
+        self._logger.setLevel(level)
+        
+    def detail(self, msg):
+        self._logger.log(Logger.DETAIL, msg)
+        
+    def info(self, msg):
+        self._logger.info(msg)
 
+    def debug(self, msg):
+        self._logger.debug(msg)
 
-def test():
+    def error(self, msg):
+        self._logger.error(msg)
+
+def validate():
     """Test of the logger
     A light weight test, less complex that PyUnit
 
@@ -54,11 +73,19 @@ def test():
     """
     print("Test MvpLogger")
     print("Getting logger")
-    logger = get_logger()
-    print("Testing output")
-    logger.debug("Something happening here")
-    logger.info("Just thought you might like to know")
-    logger.warning("Will Robinson ...")
+    logger = Logger("LogUtilTest")    
+    print("Info: " + str(Logger.DETAIL))
+    print("Info: " + str(Logger.INFO))
+    print("Debug: " + str(Logger.DEBUG))
+    print("Error: " + str(Logger.ERROR))    
+
+    for x in Logger.lvl:
+        logger.setLevel(Logger.lvl[x])
+        print("Testing Level: " + str(Logger.lvl[x]))
+        logger.detail("Something picky")
+        logger.debug("Something happening here")
+        logger.info("Just thought you might like to know")
+        logger.error("Will Robinson ...")
 
 if __name__ == "__main__":
-    test()
+    validate()
