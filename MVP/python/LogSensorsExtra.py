@@ -264,4 +264,4 @@ def main(level=Logger.INFO):
     ls.log()
 
 if __name__=="__main__":
-    validate()    
+    main()    
