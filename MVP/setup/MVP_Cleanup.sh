@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Part 1
-# Semi-generic script to get and install github archive
+# Remove working directories and files
 # Author: Howard Webb
 # Date: 10/02/2018
 

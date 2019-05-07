@@ -71,7 +71,7 @@ echo  "###### Load Libraries ######"
 $TARGET/setup/MVP_Libraries.sh || error_exit "Failure installing libraries"
 
 echo  "###### Test ######"
-$TARGET/setup/MVP_Test.sh || error_exit "Failure on testing"
+$TARGET/scripts/Validate.sh || error_exit "Failure on testing"
 
 echo  "###### Final Configuration ######"
 $TARGET/setup/MVP_Final.sh || error_exit "Failure on final configuration"
