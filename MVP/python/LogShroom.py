@@ -1,7 +1,6 @@
 """ Log standard MVP sensors
 """
 
-from scd30 import *
 from CouchUtil import CouchUtil
 from LogUtil import Logger
 
@@ -20,14 +19,36 @@ class LogShroom(object):
         if logger == None:
            self._logger = Logger("LogShroom", Logger.INFO)
         self._logger.debug("Initialize LogShroom")
-        self._scd = SCD30(self._logger)
         self._couch = CouchUtil(self._logger)
         # flag for testing
         self._test = False
     
     
-    def log_sensors(self):
-        self._logger.debug("In Log Sensors")
+    def log(self):
+        """Routine to log all sensors
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+        """               
+        self.getSCD()
+        
+    def getSCD(self):
+        """Record CO2 sensor (scd30)
+            Generates co2, temperature and relative humidity
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+        """           
+        
+        from scd30 import SCD30
+        self._scd = SCD30(self._logger)
+        self._logger.debug("In SCD30")
         try:
             co2, temp, rh = self._scd.get_data()
 
@@ -53,7 +74,7 @@ def test():
     ls = LogShroom()
     ls._logger.setLevel(Logger.DEBUG)
     ls._test = True
-    ls.log_sensors()
+    ls.log()
     
 def validate():
     print("Validate SDC30")    
@@ -62,7 +83,7 @@ def validate():
 def main(level=Logger.INFO):    
     ls = LogShroom()
     ls._logger.setLevel(level)
-    ls.log_sensors()
+    ls.log()
 
 if __name__=="__main__":
     main()    
