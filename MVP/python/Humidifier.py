@@ -98,12 +98,12 @@ def test(level=Logger.DEBUG):
     print("Test")
     print("State: " + str(hm.get_state()))
     print("Turn Humidifier On")
-    hm.set(ON)
+    hm.set(Humidifier.ON)
     print("State: " + str(hm.get_state()))
     time.sleep(10)
 
     print("Turn Humidifier Off")
-    hm.set(OFF)
+    hm.set(Humidifier.OFF)
     print("State: " + str(hm.get_state()))
     time.sleep(2)
 

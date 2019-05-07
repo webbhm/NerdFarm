@@ -28,7 +28,7 @@ class Humidistat(object):
                Raises:
                    None
         """
-        target_rh = 80
+        target_rh = 93
         if rh == None:
             co2, temp, rh = self._co2.get_data()
             msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", target_rh)
@@ -47,9 +47,10 @@ def test(level=Logger.DEBUG):
            Raises:
                None
     """
-    test = True
     print("Test")
     ts = Humidistat()
+    # Set test flag
+    ts._test = True
     ts._logger.setLevel(level)
     ts.check(80)
     print("Check Humidity 80")
@@ -60,7 +61,7 @@ def test(level=Logger.DEBUG):
     ts.check(None)
     print("Check Humidity None")
     print("Turn Off")
-    ts._humidifier.set(OFF)
+    ts._humidifier.set(Humidifier.OFF)
              
 def validate():
     test(Logger.INFO)
@@ -70,7 +71,7 @@ def main():
     ts.check()
 
 if __name__ == "__main__":
-    test()
+    main()
 
 
 

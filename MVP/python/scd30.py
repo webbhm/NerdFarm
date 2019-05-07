@@ -26,6 +26,7 @@ Base data collection is working, other functions may be incomplete or missing
 from I2CUtil import I2C, bytesToWord
 import numpy
 import time
+from LogUtil import Logger
 
 path = "/dev/i2c-1"
 addr = 0x61
@@ -50,7 +51,7 @@ class SCD30:
     TEMP_DATA_INDEX = 1
     HUMIDITY_DATA_INDEX = 2
 
-    def __init__(self, test=False):
+    def __init__(self, logger=None):
         """Create sensor object
            Args:
                None
@@ -61,12 +62,17 @@ class SCD30:
         """        
         self._addr = addr
         self._path = path
-        self._i2c = I2C(path, addr)
-        self.start_periodic_measurement(test)
+        self._logger = logger
+        if logger == None:
+           self._logger = Logger("SCD30", Logger.INFO)
+        self._i2c = I2C(path, addr, self._logger)
+        self._logger.debug("initialize SCD30")        
+        
+        self.start_periodic_measurement()
         
 
     
-    def start_periodic_measurement(self, test):
+    def start_periodic_measurement(self):
         """Start sensor to generate data (about every 2 seconds
            Args:
                self:
@@ -81,8 +87,10 @@ class SCD30:
         # altitude set to 1003 mb
         #msgs = [0x00,0x10, 0x03, 0xeb, 0x87]
         # Altitude is currently set to 0
+        self._logger.debug("In Start Periodic Measurment")        
+        
         msgs = [0x00,0x10, 0x00, 0x00, 0x81]
-        self._i2c.msg_write(msgs, test)                
+        self._i2c.msg_write(msgs)                
 
     # TESTE ADN WORKS!
     def stop_periodic_measurement(self):
@@ -93,15 +101,17 @@ class SCD30:
                None
            Raises:
                None
-        """        
+        """
+        self._logger.debug("In Stop Periodic Measurment")        
+        
         msgs = [0x01,0x14]
-        self._i2c.msg_write(msgs, test)                
+        self._i2c.msg_write(msgs)                
         
 #        return self._i2c.msg_write(self.CMD_STOP_PERIODIC_MEASUREMENT
         pass
 
 
-    def read_measurement(self, test=False):
+    def read_measurement(self):
         """Read data
            Args:
                self:
@@ -112,16 +122,16 @@ class SCD30:
                Relative Humidity
            Raises:
                None
-        """        
+        """
+        self._logger.debug("In Read Measurment")        
+        
         self._i2c.msg_write([0x03, 0x00])
-        if test:
-            print("Read Measurement")
         msgs = self._i2c.msg_read(18)
         
-        data3 = self.bytes_to_value(msgs[0].data, test)                    
+        data3 = self.bytes_to_value(msgs[0].data)                    
         return data3[self.CO2_DATA_INDEX], data3[self.TEMP_DATA_INDEX], data3[self.HUMIDITY_DATA_INDEX]
 
-    def bytes_to_value(self, byte_array, test=False):
+    def bytes_to_value(self, byte_array):
         """Convert array of byte values into three float values
            Args:
                self
@@ -132,6 +142,7 @@ class SCD30:
            Raises:
                None
         """        
+        self._logger.debug("In Bytes To Value")        
         
         # Array for value bytes (exclude crc check byte)
         bytes_buf = [0]*12 # 2 words for each co2, temperature, humidity
@@ -151,8 +162,7 @@ class SCD30:
             bytes_buf[y+2] = byte_array[x+3]
             bytes_buf[y+3] = byte_array[x+4]            
             y += 4
-        if test:
-            print ("bytes_buf: " + str(bytes_buf))
+        self._logger.detail("bytes_buf: " + str(bytes_buf))        
         
         # Convert sensor data reads to physical value per Sensirion specification
         # Load buffer with values
@@ -162,9 +172,8 @@ class SCD30:
         # Convert bytes to words
         for i in range(len(word_buf)):
             word_buf[i] = (bytes_buf[i*2] << 8) | bytes_buf[i*2+1]
-            if test:
-                print(str(hex(bytes_buf[i])) + " " + str(hex(bytes_buf[i+1])))
-                print(hex(word_buf[i]))
+            self._logger.detail(str(hex(bytes_buf[i])) + " " + str(hex(bytes_buf[i+1])))
+            self._logger.detail(hex(word_buf[i]))
 
         #convert words to int32
         data[self.CO2_DATA_INDEX] = (word_buf[0] << 16) | word_buf[1]
@@ -175,17 +184,16 @@ class SCD30:
         floatData = numpy.array(data, dtype=numpy.int32)
         data = floatData.view('float32')
 
-        if test:
-            print("CO2: " + str(data[self.CO2_DATA_INDEX]))
-            print("Temp: " + str(data[self.TEMP_DATA_INDEX]))
-            print("RH: " + str(data[self.HUMIDITY_DATA_INDEX]))
+        self._logger.detail("CO2: " + str(data[self.CO2_DATA_INDEX]))
+        self._logger.detail("Temp: " + str(data[self.TEMP_DATA_INDEX]))
+        self._logger.detail("RH: " + str(data[self.HUMIDITY_DATA_INDEX]))
 
         return data
         
         
 
     # interval : (u16 integer)
-    def set_measurement_interval(self, interval_sec, test=False):
+    def set_measurement_interval(self, interval_sec):
         """Set frequency of automatic data collectoin
            Args:
                self
@@ -195,7 +203,8 @@ class SCD30:
                None
            Raises:
                None
-        """          
+        """
+        self._logger.debug("In Set Measurment Interval")
         if interval_sec < 2 or interval_sec > 1800:
             return self.STATUS_FAIL
 # Need to finish this so value is 32 word split to two 16 words
@@ -205,10 +214,10 @@ class SCD30:
         # crc = calc_crc(msb, lsb, test)
         # msg = [0x46,0x10, msb, lsb, crc]
         msgs = [0x46,0x10, 0x00, 0x02, 0xE3]
-        self._i2c.msg_write(msgs, test)                
+        self._i2c.msg_write(msgs)                
 
 
-    def get_data_ready(self, test=False):
+    def get_data_ready(self):
         """Check if have fresh data from periodic update
            Args:
                self
@@ -218,14 +227,14 @@ class SCD30:
            Raises:
                None
         """          
-        
+        self._logger.debug("In Get Data Ready")        
         self._i2c.msg_write([0x02, 0x02])
         msgs = self._i2c.msg_read(3)        
-        if test:
-            for msg in msgs:
-                print("Msg: " + str(msg))
-                for d in msg.data:
-                    print("Data: " + str(hex(d)))
+        #for msg in msgs:
+        #    self._logger.detail("Msg: " + str(msg))
+        #    for d in msg.data:
+        #        self._logger.detail("Data: " + str(hex(d)))
+        #self._logger.detail("Data: " + str(msgs[0].data[1]))
         return msgs[0].data[1]
     
     # Strange behaviour
@@ -240,7 +249,7 @@ class SCD30:
            Raises:
                None
         """          
-        
+        self._logger.debug("In Set Temperature Offset")                
 # Need to finish this so value is 32 word split to two 16 words
 # Calculate crc value for last word
         # [Cmd MSB, Cmd LSB, Interval MSB, Interval LSB, CRC]
@@ -248,11 +257,11 @@ class SCD30:
         # crc = calc_crc(msb, lsb, test)
         # msg = [0x54,0x03, msb, lsb, crc]
         msgs = [0x54,0x03, 0x00, 0x02, 0xE3]
-        self._i2c.msg_write(msgs, test)                 
+        self._i2c.msg_write(msgs)                 
 
 
     # TESTE ADN WORKS!
-    def set_altitude(self, altitude, test=False):
+    def set_altitude(self, altitude):
         """Altitude compensation 
            Args:
                self
@@ -263,7 +272,7 @@ class SCD30:
            Raises:
                None
         """          
-        
+        self._logger.debug("In Set Altitude")                
 # Need to finish this so value is 32 word split to two 16 words
 # Calculate crc value for last word
         # [Cmd MSB, Cmd LSB, Interval MSB, Interval LSB, CRC]
@@ -271,7 +280,7 @@ class SCD30:
         # crc = calc_crc(msb, lsb, test)
         # msg = [0x51,0x02, msb, lsb, crc]
         msgs = [0x51,0x02, 0x00, 0x02, 0xE3]
-        self._i2c.msg_write(msgs, test)                 
+        self._i2c.msg_write(msgs)                 
 
     # TESTE ADN WORKS!
     def get_configured_address(self, test=False):
@@ -284,9 +293,10 @@ class SCD30:
            Raises:
                None
         """                  
+        self._logger.debug("In Get Configured Address")        
         return self._addr
     
-    def get_data(self, test=False):
+    def get_data(self):
         """High level logic to simply get data
            Args:
                self
@@ -297,23 +307,23 @@ class SCD30:
                rh: relative humidity value
            Raises:
                NameError: if error in logic (I2C Problem)
-        """                  
+        """
+        self._logger.debug("In Get Data")                
         for x in range(0, 4): # Only give four reste tries before giving up
             try:
                 while True:
                     # Test if data is ready
-                    if self.get_data_ready(test):
+                    if self.get_data_ready():
                        # fetch data 
-                       co2, temp, rh = self.read_measurement(test)
-                       if test:
-                           print("CO2: " + str(co2))
-                           print("Temp: " + str(temp))
-                           print("RH: " + str(rh))
+                       co2, temp, rh = self.read_measurement()
+                       self._logger.detail("CO2: " + str(co2))
+                       self._logger.detail("Temp: " + str(temp))
+                       self._logger.detail("RH: " + str(rh))
                        return co2, temp, rh
                     time.sleep(1)
             # try reset to see if can recover from errors
             except Exception as e:
-                print(str(e))
+                self._logger.error("{}, {}".format("Data Ready Err: ", e))
                 self.__init__()
                 time.sleep(2)
         # Give up if cannot fix the problems
@@ -321,7 +331,7 @@ class SCD30:
                 
         
 
-def test():
+def test(level=Logger.DEBUG):
    """Test script to exercise the code
            Args:
                None
@@ -332,26 +342,42 @@ def test():
    """        
    print("Test SCD30")
    # Set this to True for full info dump
-   test = False
 
-   scd = SCD30(test)
+   scd = SCD30()
+   scd._logger.setLevel(level)
+   print("Get Address")
+   print(str(scd.get_configured_address()))
+   print("Get Data")
+   while True:
+       try:
+           while True:
+               print("\n")
+               co2, temp, rh = scd.get_data()
+               print("CO2: " + str(co2))
+               print("Temp: " + str(temp))
+               print("RH: " + str(rh))
+       except Exception as e:
+            print(str(e))
+       # Give time for periodic check to reset 
+       time.sleep(3)
+        
+        
+def validate():
+   scd = SCD30()
+   scd._logger.setLevel(Logger.INFO)
    print("Get Address")
    print(str(scd.get_configured_address()))
    print("Get Data")
    try:
-       while True:
-           print("\n")
-           co2, temp, rh = scd.get_data(test)
-           print("CO2: " + str(co2))
-           print("Temp: " + str(temp))
-           print("RH: " + str(rh))
-       else:
-           print("No data available")
-       # Give time for periodic check to reset 
+       print("\n")
+       co2, temp, rh = scd.get_data()
+       print("CO2: " + str(co2))
+       print("Temp: " + str(temp))
+       print("RH: " + str(rh))
        time.sleep(3)
    except Exception as e:
         print(str(e))
 
 if __name__ == "__main__":
-    test()
+    validate()
     

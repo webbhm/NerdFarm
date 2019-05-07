@@ -9,18 +9,24 @@
 
 from periphery import I2C as pI2C
 import time
+from LogUtil import Logger
 
 class I2C(object):
 
-   def __init__(self, path, addr):
+   def __init__(self, path, addr, logger=None):
       self._path = path
       self._addr = addr
       self._i2c = pI2C(self._path)
+      self._logger = logger
+      if logger == None:
+         self._logger = Logger("SCD30", Logger.INFO)
+      self._logger.debug("initialize I2C object")        
+      
 
    def __exit__(self, exc_type, exc_value, traceback):
       self._i2c.close()
 
-   def msg_write(self, cmds, test=False):
+   def msg_write(self, cmds):
        """Write to sensor
            Args:
                cmds: commands to send
@@ -29,21 +35,23 @@ class I2C(object):
            Raises:
                None
       """
-#       print("Msg Write")
-#       for cmd in cmds:
-#           print(str(cmd))
+       self._logger.debug("In Msg Write")
+       for cmd in cmds:
+           self._logger.detail("{}, {}".format("Cmd: ", cmd))
+
        msgs = [self._i2c.Message(cmds)]
        try:
+           self._logger.detail("Transfer")
            self._i2c.transfer(self._addr, msgs)
-   #        msb = msgs[0].data[0]
-   #        print "MSB", hex(msb)
-   #        return msgs
+           msb = msgs[0].data[0]
+           self._logger.detail("{}, {}".format("MSB: ", hex(msb)))
+           return msgs
 
        except Exception as e:
-           print(str(e))
+           self._logger.error(str(e))
            return None
 
-   def msg_read(self, size, cmds=None, test=False):
+   def msg_read(self, size, cmds=None):
        """Read existing data
            Args:
                cmds: addresses to read from - optional for some sensors (SI7021)
@@ -54,9 +62,7 @@ class I2C(object):
                None
       """
            
-#       print("Msg Read - cmd " + str(cmds))
-#       print("Msg Read = size " + str(size))
-   #    print "Msg Read", size
+       self._logger.detail("{}, {}, {}, {}".format("Msg Read - size: ", size, " cmds: ", cmds))
        sz = self._i2c.Message(bytearray([0x00 for x in range(size)]), read=True)
        msgs = [sz]
 #       print("C " + str(type(cmds)))
@@ -69,30 +75,31 @@ class I2C(object):
            return msgs 
 
        except Exception as e:
-           print(str(e))
+           self._logger.error(str(e))
            return None    
 
 
-   def get_data(self, cmd, sleep, size, read=None, test=False):
+   def get_data(self, cmd, sleep, size, read=None):
        '''Combine sending of command and reading
         Some sensors default the read to the prior command and don't specify a read address
-       ''' 
+       '''
+       self._logger.debug("{}, {}, {}, {}, {}, {}".format("In Get Data-cmd: ", cmd, " sleep: ", sleep, " size: ", size))          
        self.msg_write(cmd)
        time.sleep(sleep)
        msgs = self.msg_read(size, read)
        if msgs == None:
            return None
        else:
-#           for msg in msgs:
-#               print("-")
-#               for dt in msg.data:
-#                   print("Dt " + str(dt))
-#           print("Data " + str(msgs[0].data[0]) + " " + str(msgs[0].data[1]))
+           for msg in msgs:
+               self._logger.detail("-")
+               for dt in msg.data:
+                   self._logger.detail("Dt " + str(dt))
+           self._logger.debug("Data " + str(msgs[0].data[0]) + " " + str(msgs[0].data[1]))
            value = bytesToWord(msgs[0].data[0], msgs[0].data[1])
            return msgs
         
 
-def bytesToWord(high, low, test=False):
+def bytesToWord(high, low):
    """Convert two byte buffers into a single word value
        shift the first byte into the work high position
        then add the low byte
@@ -103,7 +110,8 @@ def bytesToWord(high, low, test=False):
             word: the final value
         Raises:
             None
-   """   
+   """
+   self._logger.debug("{}, {}, {}, {}".format("In Bytes To Word-high: ", high, " Low: ", low))   
    word = (high << 8) + low
    return word
 

@@ -19,7 +19,6 @@ class Fan(object):
 
     def __init__(self, logger=None):
         self._logger = logger
-        self._logger = logger
         if logger == None:
            self._logger = Logger("Relay", Logger.INFO)
         self._logger.debug("initialize Fan object")        
