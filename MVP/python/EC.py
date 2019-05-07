@@ -37,18 +37,21 @@ class EC(object):
            Raises:
                None
       """
-       
-      return self._adc.read_adc(self._pin, gain=self.GAIN)
+      ec = self._adc.read_adc(self._pin, gain=self.GAIN)
+      self._logger.info("{} {} {}: {}".format("EC pin", self._pin, "value", ec))
+      return ec
 
 def validate():
+    print("Validate EC")
     ec = EC()
-    ec._logger.info(ec.getEC())
+    value=ec.getEC()
 
 def test():
+    print("Test EC")
     ec = EC()
     while True:
-        print("EC: " + str(ec.getEC()))
+        value=ec.getEC()
         time.sleep(0.5)
         
 if __name__ == "__main__":
-    test()
+    validate()

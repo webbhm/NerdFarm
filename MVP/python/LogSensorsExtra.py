@@ -9,7 +9,7 @@ Date: 5/3/2019
 from CouchUtil import CouchUtil
 from LogUtil import Logger
 
-class LogSensorExtra(object):
+class LogSensorsExtra(object):
 
     def __init__(self, lvl=Logger.INFO):
         """Record optional sensor data
@@ -23,6 +23,7 @@ class LogSensorExtra(object):
         self._logger = Logger("LogSensor-Extra", lvl)
         self._activity_type = "Environment_Observation"
         self._dbLogger = CouchUtil(self._logger)
+        self._test=False
         
     def getOneWire(self, test=False):
         """Loop OneWire temperature sensors
@@ -33,12 +34,11 @@ class LogSensorExtra(object):
             None
         Raises:
             None
-        """        
-        from oneWireTemp import one_temp
-        for sensor in one_temp:
-            msg = "Sensor: " + one_temp[sensor]
-            self._logger.info(msg)
-            self.logOneWire(sensor, one_temp[sensor])
+        """
+        self._logger.debug("In getOneWire")
+        from OneWireTemp import OneWireTemp
+        for sensor in OneWireTemp.one_temp:
+            self.logOneWire(sensor, OneWireTemp.one_temp[sensor])
             
     def logOneWire(self, sensor, name, test=False):
         """Record OneWire temperature sensor
@@ -50,16 +50,18 @@ class LogSensorExtra(object):
             None
         Raises:
             None
-        """           
-        from oneWireTemp import getTempC
+        """
+        self._logger.debug("In logOneWire")
+        from OneWireTemp import OneWireTemp
         try:
-            temp = getTempC(sensor)
+            ow=OneWireTemp()
+            temp = ow.getTempC(sensor)
 
             status_qualifier = 'Success'
-            if test:
+            if self._test:
                 status_qualifier = 'Test'
             self._dbLogger.saveList([self._activity_type, '', name, 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier,''])
-            self._logger.debug("{}, {}, {:10.1f}".format(name, status_qualifier, temp))                                    
+            self._logger.info("{}, {}, {:10.1f}".format(name, status_qualifier, temp))                                    
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
@@ -86,7 +88,7 @@ class LogSensorExtra(object):
             if test:
                 status_qualifier = 'Test'
             self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Light', 'LUX', "{:3.1f}".format(lux), 'lux', 'TSL2561', status_qualifier,''])                        
-            self._logger.debug("{}, {}, {:10.1f}".format("LUX", status_qualifier, lux))                                                                   
+            self._logger.info("{}, {}, {:10.1f}".format("LUX", status_qualifier, lux))                                                                   
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
@@ -116,7 +118,7 @@ class LogSensorExtra(object):
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))                
             self._dbLogger.saveList([self._activity_type, '', 'Reservoir', 'Nutrient', 'EC', "{:3.1f}".format(ec), 'EC', 'EC', status_qualifier,''])                                    
-            self._logger.debug("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))                                                                   
+            self._logger.info("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))                                                                   
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
@@ -184,44 +186,82 @@ class LogSensorExtra(object):
             self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Air', 'CO2','', 'ppm', 'CCS811', status_qualifier,str(e)])                                                                        
             self._logger.error("{}, {}, {}".format("CO2 CCS811", status_qualifier, e))
             
-    def log(self, test=False):
+    def getSCD(self):
+        """Record CO2 sensor (scd30)
+            Generates co2, temperature and relative humidity
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+        """           
+        
+        from scd30 import SCD30
+        self._scd = SCD30(self._logger)
+        self._logger.debug("In SCD30")
+        try:
+            co2, temp, rh = self._scd.get_data()
+
+            status = 'Success'
+            if self._test:
+                status = 'Test'
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'CO2', "{:10.1f}".format(co2), 'ppm', 'scd30', status, ''])
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'scd30', status, ''])
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(rh), 'Percent', 'scd30', status, ''])
+            self._logger.info("{} {:6.1f}, {} {:3.1f}, {} {:3.1f}".format("EnvObsv-CO2:", co2, "Temp", temp, "Humidity:", rh))            
+        except Exception as e:
+            status = 'Failure'
+            if self._test:
+                status = 'Test'
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'CO2', '', 'ppm', 'scd30', status, str(e)])                            
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrde', 'scd30', status, ''])
+            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'scd30', status, ''])
+            self._logger.debug("{} {}".format("EnvObsv-SCD30 Error:", e))            
+            
+    def log(self):
         '''Log extra sensors
             Uncomment desired sensors
             Imports are in the function to avoid loading unnecessary code
         '''
 
-        self.getOneWire(test)
+        self.getOneWire()
 
-        self.getLux(test)
+        self.getLux()
 
-        self.getEC(test)        
+        self.getEC()        
 
-        #lg.getCO2_NDIR(test)
+        #lg.getCO2_NDIR()
 
-        #lg.getCO2_CCS811(test)
+        #lg.getCO2_CCS811()
         
-def main():
+        #lg.getSCD()
+        
+def test():
     '''
-        Function that should get called from scripts
-    '''
-    lg = LogSensorExtra(Logger.INFO)
-    lg.log()
-
+        Use for debugging, outputs detail data
+    '''    
+    print("Testing SDC30")
+    ls = LogSensorsExtra()
+    ls._logger.setLevel(Logger.DEBUG)
+    ls._test = True
+    ls.log()
+    
 def validate():
     '''
         Exercise the function to make sure it is working correctly
         Logs valid data
-    '''
-    lg = LogSensorExtra(Logger.DETAIL)
-    lg.log()
+    '''    
+    print("Validate SDC30")    
+    main(Logger.INFO)
     
-def test():
+def main(level=Logger.INFO):
     '''
-        Use for debugging, outputs detail data
-    '''
-    test = True
-    lg = LogSensorExtra(Logger.DETAIL)
-    lg.log(test)
+        Function that should get called from scripts
+    '''    
+    ls = LogSensorsExtra()
+    ls._logger.setLevel(level)
+    ls.log()
 
 if __name__=="__main__":
-    main()
+    validate()    

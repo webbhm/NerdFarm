@@ -70,6 +70,9 @@ class LogShroom(object):
                                                                        
 
 def test():
+    '''
+        Use for debugging, outputs detail data
+    '''    
     print("Testing SDC30")
     ls = LogShroom()
     ls._logger.setLevel(Logger.DEBUG)
@@ -77,10 +80,17 @@ def test():
     ls.log()
     
 def validate():
+    '''
+        Exercise the function to make sure it is working correctly
+        Logs valid data
+    '''    
     print("Validate SDC30")    
     main(Logger.INFO)
     
-def main(level=Logger.INFO):    
+def main(level=Logger.INFO):
+    '''
+        Function that should get called from scripts
+    '''    
     ls = LogShroom()
     ls._logger.setLevel(level)
     ls.log()
