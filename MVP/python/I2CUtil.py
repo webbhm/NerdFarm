@@ -95,24 +95,24 @@ class I2C(object):
                for dt in msg.data:
                    self._logger.detail("Dt " + str(dt))
            self._logger.debug("Data " + str(msgs[0].data[0]) + " " + str(msgs[0].data[1]))
-           value = bytesToWord(msgs[0].data[0], msgs[0].data[1])
+           value = self.bytesToWord(msgs[0].data[0], msgs[0].data[1])
            return msgs
         
 
-def bytesToWord(high, low):
-   """Convert two byte buffers into a single word value
-       shift the first byte into the work high position
-       then add the low byte
-        Args:
-            high: byte to move to high position of word
-            low: byte to place in low position of word
-        Returns:
-            word: the final value
-        Raises:
-            None
-   """
-   self._logger.debug("{}, {}, {}, {}".format("In Bytes To Word-high: ", high, " Low: ", low))   
-   word = (high << 8) + low
-   return word
+   def bytesToWord(self, high, low):
+       """Convert two byte buffers into a single word value
+           shift the first byte into the work high position
+           then add the low byte
+            Args:
+                high: byte to move to high position of word
+                low: byte to place in low position of word
+            Returns:
+                word: the final value
+            Raises:
+                None
+       """
+       self._logger.debug("{}, {}, {}, {}".format("In Bytes To Word-high: ", high, " Low: ", low))   
+       word = (high << 8) + low
+       return word
 
 

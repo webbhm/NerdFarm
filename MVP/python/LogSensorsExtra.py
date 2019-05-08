@@ -94,7 +94,7 @@ class LogSensorsExtra(object):
             if test:
                 status_qualifier = 'Test'
             self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Light', 'LUX', '', 'lux', 'TSL2561', status_qualifier,str(e)])                                    
-            self._logger.error("{}, {}, {}".format(name, status_qualifier, e))
+            self._logger.error("{}, {}, {}".format("LUX", status_qualifier, e))
 
     def getEC(self, test=False):
         """Record EC sensor (EC - ADC reading)

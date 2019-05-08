@@ -7,7 +7,8 @@
 
 #from periphery import I2C
 import time
-from I2CUtil import I2C, bytesToWord
+from I2CUtil import I2C
+from LogUtil import Logger
 
 # Device I2C address
 path = "/dev/i2c-1"
@@ -20,14 +21,16 @@ nominal_integration = 0x02
 
 class TSL2561(object):
     
-    def __init__(self):
+    def __init__(self, logger=None):
       self._addr = addr
       self._path = path
-      self._i2c = I2C(path, addr)
+      if logger == None:
+          self._logger = Logger("SI7021", Logger.INFO, "/home/pi/MVP/logs/obsv.log")
+      self._i2c = I2C(path, addr, self._logger)
 
     def getChannels(self):
         # Select control register, 0x00(00) with command register, 0x80(128)
-        #		0x03(03)	Power ON mode
+        #       0x03(03)    Power ON mode
         cmds = [ctrl|cmd, power_on]
         self._i2c.msg_write(cmds)
 
@@ -49,7 +52,7 @@ class TSL2561(object):
 #            print('-')
 #            for dt in ms.data:
 #                print("Data " + str(dt))
-        full = bytesToWord(ms2[1].data[1], ms2[1].data[0])
+        full = self._i2c.bytesToWord(ms2[1].data[1], ms2[1].data[0])
 
         # Infra-red band
         # Read data back from 0x0E(14) with command register, 0x80(128), 2 bytes
@@ -65,7 +68,7 @@ class TSL2561(object):
 #            for dt in ms.data:
 #                print("Data " + str(dt))
 
-        ir = bytesToWord(ms3[1].data[1], ms3[1].data[0])
+        ir = self._i2c.bytesToWord(ms3[1].data[1], ms3[1].data[0])
 
         if ir == None or full == None:
            return None, None
@@ -76,19 +79,26 @@ class TSL2561(object):
          ir, full = self.getChannels()
          return full-ir
     
-def test():
+def validate(level=Logger.INFO):
     # Output data to screen
     lx = TSL2561()
+    lx._logger.setLevel(level)
     ir, full = lx.getChannels()
     if full == None:
         print("Failure")
     print("Full Spectrum(IR + Visible) :%d lux" %(full))
     print("Infrared Value :%d lux" %ir)
     print("Visible Value :%d lux" %(full-ir))
-    for x in range(0,13):
+    print("LUX: " + str(lx.getLux()))
+    
+def test():
+    level=Logger.DEBUG
+    validate(level)
+    lx = TSL2561()
+    lx._logger.setLevel(level)
+    while True:
         print("LUX: " + str(lx.getLux()))
         time.sleep(1)
-    print("Done")        
 
 if __name__=="__main__":
     test()            

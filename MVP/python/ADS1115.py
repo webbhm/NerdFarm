@@ -60,16 +60,19 @@ ADS1x15_CONFIG_COMP_QUE_DISABLE = 0x0003
 
 PATH = "/dev/i2c-1"
 
-from I2CUtil import I2C, bytesToWord
+from I2CUtil import I2C
 
 class ADS1115(object):
+    
     def __init__(self, logger=None):
-        self._path = PATH
-        self._addr = ADS1x15_DEFAULT_ADDRESS
-        self._i2c = I2C(self._path, self._addr)
+
         self._logger = logger
         if logger == None:
-            self._logger = Logger("ADS1115", Logger.INFO)
+            self._logger = Logger("ADS1115", Logger.INFO, file="/home/pi/MVP/logs/obsv.log")
+        self._path = PATH
+        self._addr = ADS1x15_DEFAULT_ADDRESS
+        self._i2c = I2C(self._path, self._addr, self._logger)
+        self._logger.debug("Initialize ADS1115")
         
         
     def read_adc(self, channel, gain=1, data_rate=None):
@@ -90,7 +93,9 @@ class ADS1115(object):
         assert 0 <= channel <= 3, 'Channel must be a value within 0-3!'
         # Perform a single shot read and set the mux value to the channel plus
         # the highest bit (bit 3) set.
-        return self.read(channel + 0x04, gain, data_rate, ADS1x15_CONFIG_MODE_SINGLE)
+        value = self.read(channel + 0x04, gain, data_rate, ADS1x15_CONFIG_MODE_SINGLE)
+        self._logger.info("{}: {}, {}: {}".format("Channel", channel, "Value", value))
+        return value
 
     def read(self, mux, gain, data_rate, mode):
         """Perform an ADC read with the provided mux, gain, data_rate, and mode
@@ -141,7 +146,7 @@ class ADS1115(object):
         size = 2
         ms2 = self._i2c.msg_read(size, cmds)
 # Convert bytes to Word structure        
-        full = bytesToWord(ms2[1].data[0], ms2[1].data[1])
+        full = self._i2c.bytesToWord(ms2[1].data[0], ms2[1].data[1])
         return full
  
     def data_rate_default(self):
@@ -162,15 +167,17 @@ def test():
         Raises:
             None
    """
-   validate()
+   print("Test ADS1115")
    channel = 0
    gain=1
    data_rate = None    
    adc = ADS1115()
    print("ADS1115")
    while True:
-       value = adc.read_adc(channel, gain, data_rate)
-       print("Value " + str(value))
+       print("\n")
+       for channel in range(0, 4):
+           value = adc.read_adc(channel, gain, data_rate)
+           print("{}: {}, {}: {}".format("Channel", channel, "Value", value))
        time.sleep(5)
    
 def validate():
@@ -183,8 +190,7 @@ def validate():
             None
     """
     
-    print("Test ADC")
-   
+    print("Validate ADC")
     channel = 0
     gain=1
     data_rate = None    

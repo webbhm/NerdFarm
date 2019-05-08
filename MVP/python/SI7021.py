@@ -10,7 +10,7 @@ https://www.silabs.com/documents/public/data-sheets/Si7021-A20.pdf
 
 
 import time
-from I2CUtil import I2C, bytesToWord
+from I2CUtil import I2C
 from LogUtil import Logger
 
 path = "/dev/i2c-1"
@@ -44,10 +44,11 @@ class SI7021(object):
     
       self._addr = addr
       self._path = path
-      self._i2c = I2C(path, addr)
       self._logger = logger
       if logger == None:
-          self._logger = Logger("SI7021", Logger.INFO)
+          self._logger = Logger("SI7021", Logger.INFO, "/home/pi/MVP/logs/obsv.log")
+      self._i2c = I2C(path, addr, self._logger)
+          
  
    def calc_humidity(self, read):
       """Calculate relative humidity from sensor reading
@@ -87,7 +88,7 @@ class SI7021(object):
        if msgs == None:
            return None
        else:
-           value = bytesToWord(msgs[0].data[0],msgs[0].data[1])
+           value = self._i2c.bytesToWord(msgs[0].data[0],msgs[0].data[1])
            tempC = self.calc_temp(value) 
            return tempC
 
@@ -101,7 +102,7 @@ class SI7021(object):
                 None
        """
        msgs = self._i2c.get_data([rh_no_hold], 0.03, 2)
-       value = bytesToWord(msgs[0].data[0], msgs[0].data[1])       
+       value = self._i2c.bytesToWord(msgs[0].data[0], msgs[0].data[1])       
        if value == None:
            return None
        else:
@@ -118,7 +119,7 @@ class SI7021(object):
                None
        """
        msgs = self._i2c.get_data([temp_no_hold], 0.03, 3)
-       value = bytesToWord(msgs[0].data[0], msgs[0].data[1])       
+       value = self._i2c.bytesToWord(msgs[0].data[0], msgs[0].data[1])       
        if value == None:
            return None
        else:
