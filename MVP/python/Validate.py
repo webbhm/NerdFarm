@@ -40,8 +40,8 @@ class Validate(object):
         l_val()
 
     def validateControllers(self):
-        print("Validate Controllers")
-        
+        print("\nValidate Controllers")
+        print("\nValidate Thermostat")
         from Thermostat import validate as therm_val
         therm_val()
         

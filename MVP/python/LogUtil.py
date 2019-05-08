@@ -11,7 +11,7 @@ class Logger(object):
     ERROR = logging.ERROR
     lvl = {0: DETAIL, 1: DEBUG, 2: INFO, 3: ERROR}
 
-    def __init__(self, name, lvl=INFO):
+    def __init__(self, name, lvl=INFO, file=None):
         """Create and return a logger
 
         Builds a Python logger to:
@@ -31,7 +31,10 @@ class Logger(object):
         self._logger.setLevel(lvl)
         # Rotating File handler
         fname = "/home/pi/MVP/logs/logger.log"
-        file_handler = TimedRotatingFileHandler(fname, when="d", interval=30, backupCount=3)
+        if file==None:
+            file_handler = TimedRotatingFileHandler(fname, when="d", interval=30, backupCount=3)
+        else:            
+            file_handler = TimedRotatingFileHandler(file, when="d", interval=30, backupCount=3)            
         self._logger.setLevel(lvl)        
         #Set formaat
         fmt = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"

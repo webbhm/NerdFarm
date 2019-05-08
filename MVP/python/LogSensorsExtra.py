@@ -20,7 +20,7 @@ class LogSensorsExtra(object):
         Raises:
             None
         """        
-        self._logger = Logger("LogSensor-Extra", lvl)
+        self._logger = Logger("LogSensor-Extra", lvl, file="/home/pi/MVP/logs/obsv.log")
         self._activity_type = "Environment_Observation"
         self._dbLogger = CouchUtil(self._logger)
         self._test=False

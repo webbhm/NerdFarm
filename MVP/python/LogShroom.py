@@ -17,7 +17,7 @@ class LogShroom(object):
         """        
         self._logger = logger
         if logger == None:
-           self._logger = Logger("LogShroom", Logger.INFO)
+           self._logger = Logger("LogShroom", Logger.INFO, file="/home/pi/MVP/logs/obsv.log")
         self._logger.debug("Initialize LogShroom")
         self._couch = CouchUtil(self._logger)
         # flag for testing

@@ -5,7 +5,7 @@
 """
 
 import os
-from LogUtil import get_logger
+from LogUtil import Logger
 
 class CouchHeartbeat(object):
     """Heartbeat object    """
@@ -16,7 +16,7 @@ class CouchHeartbeat(object):
         """Standard constructor
         Get and hold a Python logger
         """
-        self.logger = get_logger('CouchHeartbeat')
+        self._logger = Logger('CouchHeartbeat', Logger.INFO, "/home/pi/MVP/logs/heartbeat.log")
 
     def check(self, port):
         """Ping the database
@@ -33,9 +33,9 @@ class CouchHeartbeat(object):
         cmd = 'curl -X GET http://localhost:5984'
         ret = os.system(cmd)
         if ret == 0:
-                self.logger.info('localhost Couch is Up')
+                self._logger.info('localhost Couch is Up')
         else:
-            self.logger.warning('Couch is Down')
+            self._logger.error('Couch is Down')
             self.restart()
 
     def restart(self):

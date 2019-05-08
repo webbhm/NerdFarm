@@ -11,7 +11,7 @@ from LogUtil import Logger
 
 class LogSensors(object):
 
-    def __init__(self, lvl=Logger.INFO):
+    def __init__(self, lvl=Logger.INFO, file="/home/pi/MVP/logs/obsv.log"):
         """Record optional sensor data
         Args:
             lvl: Logging level

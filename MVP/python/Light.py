@@ -22,7 +22,7 @@ class Light(object):
         
       self._logger = logger
       if logger == None:
-          self._logger = Logger("Light", Logger.INFO)
+          self._logger = Logger("Light", lvl=Logger.INFO, file="/home/pi/MVP/logs/state.log")
       self._relay = Relay(self._logger)
       self._couch = CouchUtil(self._logger)
       

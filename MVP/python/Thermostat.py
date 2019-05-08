@@ -13,7 +13,7 @@ class Thermostat(object):
     """Code associated with the thermostat controller"""
 
     def __init__(self):
-        self._logger = Logger("Thermostat")
+        self._logger = Logger("Thermostat", lvl=Logger.INFO, file="/home/pi/MVP/logs/state.log")
         self._logger.debug("initialize Thermostat object")
         self._temp = SI7021(self._logger)
         self._fan = Fan(self._logger)
@@ -47,7 +47,7 @@ def test(level=Logger.DEBUG):
            Raises:
                None
     """
-    print("Test")
+    print("Test Thermostat")
     ts = Thermostat()
     ts._logger.setLevel(level)
     ts.check(40)
