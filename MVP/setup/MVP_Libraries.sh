@@ -52,7 +52,7 @@ echo  $(date +"%D %T") "pygal installed (used for charting)"
 #echo  $(date +"%D %T") "pygal installed (used for charting)"
 
 # Used for database access
-pip3 install  couchdb || error_exit "Failure to install CouchDB Python library"
+sudo pip3 install  couchdb || error_exit "Failure to install CouchDB Python library"
 echo  $(date +"%D %T") "CouchDB Python Library intalled"
 
 # https://www.raspberrypi.org/forums/viewtopic.php?t=142700
