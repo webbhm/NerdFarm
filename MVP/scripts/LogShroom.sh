@@ -1,6 +1,8 @@
 #!/bin/bash
 
-timestamp="$(date +"%D %T")"
+# Log sensor data to the database
+
+echo
 echo $(date +"%D %T") "Log Mushroom Sensors"
 
 #Log std JSON data

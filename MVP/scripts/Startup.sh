@@ -1,5 +1,7 @@
 #!/bin/bash
 
+timestamp="$(date +"%D %T")"
+
 #Script to start up the web server
 #This should be placed in a startup directory so it runs every time the Pi is booted
 #There are several ways to do this, but the following is one
@@ -7,19 +9,20 @@
 #Author: Howard Webb
 #Date: 7/15/2017
 
-echo \nRunning Startup >> /home/pi/MVP/logs/startup.log 2>&1
+echo
+echo  $(date +"%D %T") Running Startup >> /home/pi/MVP/logs/startup.log 2>&1
 
 sudo chmod 666 /home/pi/MVP/logs/*
 
-echo Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
+echo $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
 # Start CouchDB
-/home/pi/MVP/scripts/StartCouchDB.sh >> /home/pi/MVP/logs/startup.log 2>&1
+/home/pi/MVP/scripts/StartCouchDB.sh
 
-echo Starting Server >> /home/pi/MVP/logs/startup.log 2>&1
+echo $(date +"%D %T") Starting Server >> /home/pi/MVP/logs/startup.log 2>&1
 # Start Server
-/home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1
+/home/pi/MVP/scripts/StartServer.sh
 
-echo Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
+echo $(date +"%D %T") Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
 # Run startup code
 python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
 
