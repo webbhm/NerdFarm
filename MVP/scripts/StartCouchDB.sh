@@ -6,6 +6,7 @@
 
 echo
 echo  $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
+echo  $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/couchdb.log 2>&1
 
 nohup sudo -i -u couchdb /home/couchdb/bin/couchdb &> /home/pi/MVP/logs/couchdb.log &
 
