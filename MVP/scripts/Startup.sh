@@ -15,14 +15,14 @@ echo  $(date +"%D %T") Running Startup >> /home/pi/MVP/logs/startup.log 2>&1
 sudo chmod 666 /home/pi/MVP/logs/*
 
 echo $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
-# Start CouchDB
 /home/pi/MVP/scripts/StartCouchDB.sh
 
+# Give time for the database to get going
+sleep(12)
+
 echo $(date +"%D %T") Starting Server >> /home/pi/MVP/logs/startup.log 2>&1
-# Start Server
 /home/pi/MVP/scripts/StartServer.sh
 
 echo $(date +"%D %T") Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
-# Run startup code
 python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
 
