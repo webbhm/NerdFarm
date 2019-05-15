@@ -9,4 +9,7 @@
 
 #NOTE: The server must be started from the directory from which files are to be served
 cd /home/pi/MVP/web
-nohup python3 -m http.server &> /home/pi/MVP/logs/server.log &
+
+echo
+echo  $(date +"%D %T") Starting Server >> /home/pi/MVP/logs/server.log
+python3 -m http.server 2>&1 | tee -a /home/pi/MVP/logs/server.log &

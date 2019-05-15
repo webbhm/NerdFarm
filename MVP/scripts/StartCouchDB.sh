@@ -4,9 +4,9 @@
 #Author: Howard Webb
 #Date: 7/15/2017
 
-echo
-echo  $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
-echo  $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/couchdb.log 2>&1
+sudo -i -u couchdb /home/couchdb/bin/couchdb 2>&1 | tee -a /home/pi/MVP/logs/couchdb.log &
 
-nohup sudo -i -u couchdb /home/couchdb/bin/couchdb &> /home/pi/MVP/logs/couchdb.log &
+# need to change due to sudo call
+sudo chmod 666 /home/pi/MVP/logs/*
+
 
