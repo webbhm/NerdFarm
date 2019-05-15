@@ -4,9 +4,7 @@
 #Author: Howard Webb
 #Date: 7/15/2017
 
+# only this line should call this log due to ownership by sudo
+# use & at end of file so runs in background
 sudo -i -u couchdb /home/couchdb/bin/couchdb 2>&1 | tee -a /home/pi/MVP/logs/couchdb.log &
-
-# need to change due to sudo call
-sudo chmod 666 /home/pi/MVP/logs/*
-
 

@@ -1,11 +1,7 @@
 #!/bin/bash
 
-timestamp="$(date +"%D %T")"
-
-#!/bin/bash
-#Script to start up the web server
-#This should be placed in a startup directory so it runs every time the Pi is booted
-#There are several ways to do this, but the following is one
+# Routines for when the Raspberry is first started
+# This is called from /etc/rc.local
 #https://www.raspberrypi.org/documentation/linux/usage/rc-local.md
 #Author: Howard Webb
 #Date: 7/15/2017
