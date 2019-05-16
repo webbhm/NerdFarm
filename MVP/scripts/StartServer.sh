@@ -8,8 +8,8 @@
 
 cd /home/pi/MVP/web
 
-# Note the server can be started from a single line (see below), but the python code is called so the logging works
-# python3 -m http.server
+# Note this simple server is the Python3 upgrade.  It works nicely, but doesn't log data
+# If you are interested in more logging, you can dig in here:
+# https://medium.com/@andrewklatzke/creating-a-python3-webserver-from-the-ground-up-4ff8933ecb96
 
-echo $(date +"%D %T") Starting Web Server >> /home/pi/MVP/logs/server.log
-python3 /home/pi/MVP/python/WebServer.py &> /home/pi/MVP/logs/server.log &
+python3 -m http.server &> /home/pi/MVP/logs/server.log &
