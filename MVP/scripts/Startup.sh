@@ -1,24 +1,32 @@
 #!/bin/bash
 
-# Routines for when the Raspberry is first started
-# This is called from /etc/rc.local
+#Script to start up the web server
+#This should be placed in a startup directory so it runs every time the Pi is booted
+#There are several ways to do this, but the following is one
 #https://www.raspberrypi.org/documentation/linux/usage/rc-local.md
 #Author: Howard Webb
 #Date: 7/15/2017
 
-echo
-echo  $(date +"%D %T") Running Startup >> /home/pi/MVP/logs/startup.log
+echo \nRunning Startup >> /home/pi/MVP/logs/startup.log 2>&1
 
-echo $(date +"%D %T") Starting CouchDB >> /home/pi/MVP/logs/startup.log
-/home/pi/MVP/scripts/StartCouchDB.sh
+sudo chmod 666 /home/pi/MVP/logs/*
 
-# Give time for the database to get going
-echo "Sleeping 20" >> /home/pi/MVP/logs/startup.log
-sleep 20
+echo Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
+# Start CouchDB
+/home/pi/MVP/scripts/StartCouchDB.sh >> /home/pi/MVP/logs/startup.log 2>&1
 
-echo $(date +"%D %T") Starting Server >> /home/pi/MVP/logs/startup.log
-/home/pi/MVP/scripts/StartServer.sh
+echo Starting Web Server >> /home/pi/MVP/logs/startup.log 2>&1
+# Start Server
+/home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1 &
 
-echo $(date +"%D %T") Check Lights, etc >> /home/pi/MVP/logs/startup.log
-python3 /home/pi/MVP/python/StartUp.py  2>&1 | tee -a /home/pi/MVP/logs/startup.log
+echo Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
+# Run startup code
+python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
+
+echo Start CSS811 CO2 Master >> /home/pi/MVP/logs/startup.log 2>&1
+nohup python3 /home/pi/MVP/python/CCS811_master.py >> /home/pi/MVP/logs/startup.log 2>&1 &
+
+python3 /home/pi/python/app.py >> /home/pi/MVP/logs/startup.log 2>&1 &
+
+
 
