@@ -4,7 +4,6 @@
 # Make sure Solenoid is closed
 """
 
-from Pump import Pump
 from env import env
 from datetime import datetime
 from datetime import timedelta
@@ -28,19 +27,33 @@ class StartUp(object):
         Raises:
             None
         """    
-        # Check the pump first to avoid flooding
-        # Don't check state, just make sure it is off
-        self._logger.debug("In check")
-        pump_state = "Unknown"
-        pump_state = self.pumpOff()
         light_state = "Unknown"
         try:
             light_state = self.checkLight()
         except Exception as e:
             self._logger.error(e)
-        msg="{}, {}, {}, {}".format("Pump is ", pump_state, " Lights are ", light_state)
-        self._logger.info(msg)
+        self.checkPump()
         
+    def checkPump(self):
+        """Make sure the pump is turned off
+            Don't check, just turn off
+            If no pump in installed, this will just flip the GPIO
+        Args:
+            test: flag for testing system
+        Returns:
+            state: (should be Off)
+        Raises:
+            None
+        """
+
+        self._logger.debug("In checkPump")
+        pump_state = "Unknown"
+        try:
+            pump_state = self.pumpOff()
+            self._logger.debug("{}: {}".format("Pump State", pump_state))
+        except Exception as e:
+            self._logger.error(e)
+       
     def pumpOff(self):
         """Make sure the pump is turned off
         Args:
@@ -50,6 +63,9 @@ class StartUp(object):
         Raises:
             None
         """
+        from Pump import Pump
+        pump = Pump()
+
         self._logger.debug("In pumpOff")
         p = Pump(self._logger)
         p.off()
