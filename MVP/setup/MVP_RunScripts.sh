@@ -64,8 +64,11 @@ $TARGET/setup/MVP_Libraries.sh || error_exit "Failure installing libraries"
 echo  "###### Install CouchDB - downloaded version ######"
 $TARGET/setup/MVP_DB_Build.sh || error_exit "Failure installing CouchDB"
 
-echo  "###### Start CouchDB ######"
-$TARGET/setup/MVP_DB_Start.sh || error_exit "Failure installing CouchDB"
+echo  "###### Start CouchDB - NOTE: this runs in background ######"
+$TARGET/setup/MVP_DB_Start.sh || error_exit "Failure starting CouchDB"
+
+# Give some time for the database to get running
+sleep 20
 
 echo  "###### UPdate CouchDB, build databases ######"
 $TARGET/setup/MVP_DB_Init.sh || error_exit "Failure updating CouchDB"
