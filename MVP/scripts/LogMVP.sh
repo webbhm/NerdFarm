@@ -7,7 +7,7 @@ echo $(date +"%D %T") "Log Sensors"
 #Log std JSON data
 python3 /home/pi/MVP/python/LogSensors.py
 
-#Log optional sensors
-# Uncomment this (and the particular sensors) to log these options
+# Log std JSON data of optional sensors
+# Uncomment the line below if you have optional sensors
 #python3 /home/pi/MVP/python/LogSensorsExtra.py
 
