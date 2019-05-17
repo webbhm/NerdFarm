@@ -19,6 +19,9 @@ echo Starting Web Server >> /home/pi/MVP/logs/startup.log 2>&1
 # Start Server
 /home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1
 
+# Give time for database to start before sending data to it
+sleep 20
+
 echo Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
 # Run startup code
 python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
