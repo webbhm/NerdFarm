@@ -17,16 +17,10 @@ echo Starting CouchDB >> /home/pi/MVP/logs/startup.log 2>&1
 
 echo Starting Web Server >> /home/pi/MVP/logs/startup.log 2>&1
 # Start Server
-/home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1 &
+/home/pi/MVP/scripts/StartServer.sh >> /home/pi/MVP/logs/startup.log 2>&1
 
 echo Check Lights, etc >> /home/pi/MVP/logs/startup.log 2>&1
 # Run startup code
 python3 /home/pi/MVP/python/StartUp.py >> /home/pi/MVP/logs/startup.log 2>&1
-
-echo Start CSS811 CO2 Master >> /home/pi/MVP/logs/startup.log 2>&1
-nohup python3 /home/pi/MVP/python/CCS811_master.py >> /home/pi/MVP/logs/startup.log 2>&1 &
-
-python3 /home/pi/python/app.py >> /home/pi/MVP/logs/startup.log 2>&1 &
-
 
 
