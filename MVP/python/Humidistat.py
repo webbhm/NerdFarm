@@ -18,6 +18,7 @@ class Humidistat(object):
         self._logger.debug("initialize Humidistat object")
         self._co2 = SCD30()
         self._humidifier = Humidifier()
+        self._target_rh = 80
 
     def check(self, rh=None, test=False):
         """Adjust the fhumidifier depending upon the rh
@@ -28,12 +29,11 @@ class Humidistat(object):
                Raises:
                    None
         """
-        target_rh = 93
         if rh == None:
             co2, temp, rh = self._co2.get_data()
-            msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", target_rh)
+            msg = "{} {} {} {}".format("Humidity:", rh, " Target Humidity:", self._target_rh)
             self._logger.info(msg)    
-        if rh > target_rh:
+        if rh > self._target_rh:
             self._humidifier.set(Humidifier.OFF)
         else:
             self._humidifier.set(Humidifier.ON)
