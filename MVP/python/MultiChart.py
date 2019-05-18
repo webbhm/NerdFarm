@@ -105,8 +105,8 @@ class MultiChart(object):
         #build chart
         #line_chart = pygal.Line(range=(350, 2000))
         line_chart = pygal.Line()    
-        line_chart.title = ATTRIBUTE
-        line_chart.y_title=UNITS
+        line_chart.title = self._attribute
+        line_chart.y_title= self._units
         line_chart.x_title="Timestamp (hover over to display date)"
         
         # Pull the values from the rows and build a list
