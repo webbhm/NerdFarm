@@ -57,7 +57,7 @@ class Reservoir:
     def getEC(self):
         '''Get EC reading'''
         self._logger.detail("In getEC")                
-        snsr = EC()
+        snsr = EC(self._logger)
         return snsr.getEC()
 
     def fill(self, test=False):
@@ -115,7 +115,7 @@ class Reservoir:
         # Is full, log state
         if status==Reservoir.FULL:
             self._logger.detail("{}".format("Status: Full"))
-            self._logger.detail("{} {} {} {}".format("EC:", ec, "Full level:", self.res['full'], "Empty:", self.res['empty']))                                                        
+            self._logger.info("{} {} {} {}".format("EC:", ec, "Full level:", self.res['full'], "Empty:", self.res['empty']))                                                        
             return True
         else:
             # Needs filling
@@ -131,17 +131,17 @@ class Reservoir:
                 level='Empty'
                 if status=='2':
                     level='Ok'
-                self._logger.detail("{}".format("Failure to fill Reservoir"))                
-                self._logger.detail("{} {} {} {}".format("EC:", ec, "Full level:", self.res['full'], "Empty:", self.res['empty']))                                                        
-                self.logState(volume, 'Failure')
+                self._logger.error("{}".format("Failure to fill Reservoir"))                
+                self._logger.error("{} {} {} {}".format("EC:", ec, "Full level:", self.res['full'], "Empty:", self.res['empty']))                                                        
+                self.logState(volume,'Failure')
                 return False            
 
     def logState(self, value, status_qualifier):
 
         if self._test:
             status_qualifier='Test'
-        txt={'EC': value, 'full_level': self.res['full'], 'empty_level': self.res['empty'], 'status': 'Full'}        
-        self._couch.saveList(['State_Change', '', 'Nutrient', 'Reservoir', 'Volume', value, 'EC', 'Solenoid', status_qualifier, ''])
+        txt={'Volume': value, 'full_level': self.res['full'], 'empty_level': self.res['empty'], 'status': 'Full'}        
+        self._couch.saveList(['State_Change', '', 'Nutrient', 'Reservoir', 'Volume', value, 'Liter', 'Solenoid', status_qualifier, ''])
         self._logger.info(txt)
 
 def test(level=Logger.DEBUG, test=True):
@@ -157,7 +157,8 @@ def test(level=Logger.DEBUG, test=True):
             state="Empty"
         print("State: " + state)    
         print( str({'EC': ec, 'full_level': r.res['full'], 'empty_level': r.res['empty'], 'status':state}))
-        print(r.getStatus())
+        status, ec = r.getStatus()
+        print("{}: {}, {}: {}".format("Status", status, "EC", ec))
         
 def validate():
     test(Logger.INFO)
