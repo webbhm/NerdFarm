@@ -4,9 +4,9 @@
 # Thermostat controller that reads the temperature sensor and adjusts the exhaust fan
 
 """
-from Fan import Fan, ON, OFF
+from Fan import Fan
 from scd30 import SCD30
-from LogUtil import get_logger
+from LogUtil import Logger
 
 TARGET_CO2 = 800
 
@@ -14,10 +14,10 @@ class CO2_stat(object):
     """Code associated with the thermostat controller"""
 
     def __init__(self):
-        self.logger = get_logger("CO2_stat")
+        self.logger = Logger("CO2_stat")
         self.logger.debug("initialize CO2 controller object")
-        self._co2 = SCD30()
-        self._fan = Fan()
+        self._co2 = SCD30(self.logger)
+        self._fan = Fan(self.logger)
 
     def check(self, co2=None, test=False):
         """Adjust the fan depending upon the CO2
@@ -36,9 +36,9 @@ class CO2_stat(object):
         
         self.logger.info(msg)    
         if co2 > target_co2:
-            self._fan.set(ON, test)
+            self._fan.set(Fan.ON)
         else:
-            self._fan.set(OFF, test)
+            self._fan.set(Fan.OFF)
 
 def test():
     """Self test
