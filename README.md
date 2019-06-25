@@ -81,9 +81,10 @@ Code follows the board number convention.
 ### Software Build
 
 The build scripts are the documentation.  If you want to build things yourself, follow the scripts (/home/pi/MVP/setup).
-Download the initial build script, change its permissions, and run it.  This script will call other scripts that manage partricular parts of the system.  From a command prompt, run the following three commands:
+Download the initial build script, change its permissions, and run it.  This script will call other scripts that manage partricular parts of the system.  From a command prompt, run the following four commands:
 
 ```
+cd /home/pi
 wget raw.github.com/webbhm/NerdFarm/master/MVP/setup/Build.sh
 chmod +x /home/pi/Build.sh
 /home/pi/Build.sh
