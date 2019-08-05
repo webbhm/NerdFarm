@@ -1,113 +1,73 @@
+'''
 #Light Control
 # Author: Howard Webb
-# Date: 7/25/2017
-#Controls the turning on and turning off of lights
-#Lights are wired into Relay #4 (Pin 29)
+# Date: 8/05/2019
+Controls the turning on and turning off of lights via RF
+Lights use RF Plug #1
+There is no way to check the light state with the RF
+'''
 
-from Relay import *
+from RF_Send import RF_Sender
 from LogUtil import Logger
 from CouchUtil import CouchUtil
+
+lightPin = 1
 
 class Light(object):
 
     def __init__(self, logger=None):
-      """Initialize light object
-           Args:
-               logger: logger object from calling module (if there is one)
-           Returns:
-               None:
-           Raises:
-               None
-      """
-        
-      self._logger = logger
-      if logger == None:
-          self._logger = Logger("Light", lvl=Logger.INFO, file="/home/pi/MVP/logs/state.log")
-      self._relay = Relay(self._logger)
-      self._couch = CouchUtil(self._logger)
-      
-    def set_on(self, test=False):
-        """Turn light on (if not already on)
-           Args:
-               test: indicates test, not to valid create data record
-           Returns:
-               None:
-           Raises:
-               None
-        """
+        self._rf = RF_Sender()
+        self._logger = logger
+        if self._logger == None:
+            self._logger = Logger('Light', Logger.INFO, "/home/pi/MVP/logs/obsv.log")
+        self._couch = CouchUtil(self._logger)        
 
-        if self.get_state()==0:
-            self._relay.set_on(lightPin)
-            self.log_state("On", test)
-            self._logger.debug('Light turned ON')            
-        else:
-            self._logger.debug('Light already ON - no change')
+    def set_on(self, test=False):
+        "Check state and turn on if needed"
+        self._rf.set_on(lightPin,)
+        self.log_state("On", test)
+        self._logger.debug('Light turned ON')            
             
         
     def set_off(self, test=False):
-        """Turn light off (if not already off)
-           Args:
-               test: indicates test, not to valid create data record
-           Returns:
-               None:
-           Raises:
-               None
-        """
-        if self.get_state()==1:
-            self._relay.set_off(lightPin)
-            self.log_state("Off")
-            self._logger.debug('Light turned OFf')                        
-        else:
-            self._logger.debug('Light already OFF - no change')
-
-    def get_state(self):
-        """Check the GPIO
-           Args:
-               None:
-           Returns:
-               None:
-           Raises:
-               None
-        """
-        return self._relay.get_state(lightPin)
+        '''Check state and turn off if needed'''
+        self._rf.set_off(lightPin)
+        self.log_state("Off", test)
+        self._logger.debug('Light turned Off')                        
 
     def log_state(self, value, test=False):
-        """Create databse log record
-           Args:
-               value: (changed) state of the light
-           Returns:
-               None:
-           Raises:
-               None
         """
+        Create Environment Observation
+    """
         status_qualifier='Success'
         if test:
             status_qualifier='Test'
-        self._couch.saveList(['State_Change','','Top', 'Lights', 'State', value, 'Lights', 'state', status_qualifier, ''])
-        self._logger.debug("Log State Change")
+        self._couch.saveList(['State_Change','','Top', 'Lights', 'State', value, 'Lights', 'state', status_qualifier, ''])            
 
-def test(level=Logger.DEBUG, test=True):
+def test(level=Logger.DEBUG):
+    """Self test
+           Args:
+               None
+           Returns:
+               None
+           Raises:
+               None
     """
-    System test of the light object
-    """
-    light=Light()
-    light._logger.setLevel(level)
+
+    lght=Light()
+    lght._logger.setLevel(level)    
     
     print("Test Light")
-    print("Light State: " + str(light.get_state()))
     print("Turn Light On")
-    light.set_on(test)
-    print("Light State: " + str(light.get_state()))
+    lght.set_on(True)
     print("Turn Light Off")
-    light.set_off(test)
-    print("Light State: " + str(light.get_state()))
+    lght.set_off(True)
     print("Turn Light On")
-    light.set_on(test)
-    print("Light State: " + str(light.get_state()))
+    lght.set_on(True)
     print("Done")
     
 def validate():
-    test(Logger.INFO, False)
+    test(Logger.INFO)
     
 
 if __name__=="__main__":

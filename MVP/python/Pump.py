@@ -1,87 +1,76 @@
-# Actuator for pond pump run from the relay
-# LOW/ON is pump off (normal state)
-# This is wired so the pump is off if the power goes off (prevents flooding!!)
+'''
+Pump control - modification of Light.py, same RF, different signal
+# Author: Howard Webb
+# Date: 8/05/2019
+Controls the turning on and turning off of pump via RF
+Pump use RF Plug #2
+There is no way to check the state with the RF
+'''
 
-from Relay import *
-from env import env
-#from Recorder import record_env
+from RF_Send import RF_Sender
 from LogUtil import Logger
 from CouchUtil import CouchUtil
 
-class Pump:
+pumpPin = 2
+
+class Pump(object):
 
     def __init__(self, logger=None):
-        '''Initialize the object'''
-        self.solenoidPin = Relay4
-        if logger==None:
-            self._logger = Logger('Solenoid', Logger.INFO)
-        else:
-            self._logger = logger
-        self._relay=Relay(self._logger)
-        self._couch=CouchUtil(self._logger)
-        self._test = False
+        self._rf = RF_Sender()
+        self._logger = logger
+        if self._logger == None:
+            self._logger = Logger('Pump', Logger.INFO, "/home/pi/MVP/logs/obsv.log")
+        self._couch = CouchUtil(self._logger)        
+
+    def set_on(self, test=False):
+        "Check state and turn on if needed"
+        self._rf.set_on(pumpPin,)
+        self.log_state("On", test)
+        self._logger.debug('Pump turned ON')            
+            
         
-        self.activity_type = 'State_Change'
+    def set_off(self, test=False):
+        '''Check state and turn off if needed'''
+        self._rf.set_off(pumpPin)
+        self.log_state("Off", test)
+        self._logger.debug('Pump turned Off')                        
 
-    def on(self):
-        self._relay.set_off(self.solenoidPin)
-        self._logger.debug("{}".format("Open Solenoid"))            
-        self.logState("Open")
-        
-    def off(self):
-        self._relay.set_on(self.solenoidPin)
-        self._logger.debug("{}".format("Close Solenoid"))            
-        self.logState("Closed")
-
-    def getState(self):
-        state=self._relay.get_state(self.solenoidPin)
-        if state==0:
-            return "On"
-        else:
-            return "Off"
-
-    def logState(self, value):
+    def log_state(self, value, test=False):
+        """
+        Create Environment Observation
+    """
         status_qualifier='Success'
-        if self._test:
+        if test:
             status_qualifier='Test'
-        self._couch.saveList(['State_Change', '', 'Pump', 'Reservoir', 'State', value, 'state', 'Solenoid', status_qualifier, ''])
+        self._couch.saveList(['State_Change','','Reservoir', 'Pump', 'State', value, 'Pump', 'state', status_qualifier, ''])                    
 
-def test(level=Logger.DEBUG, test=True):
-    print("Pump Test")
-    print("On")
-    s = Pump()
-    s._logger.setLevel(level)
-    s._test = test
-    s.on()
-    print("State: " + s.getState())
-    time.sleep(5)
-    print("Off")
-    s.off()
-    print( "State: " + s.getState())
+
+def test(level=Logger.DEBUG):
+    """Self test
+           Args:
+               None
+           Returns:
+               None
+           Raises:
+               None
+    """
+
+    pmp=Pump()
+    pmp._logger.setLevel(level)    
     
-def test3():
-    print("Test 3")
-    s = Pump()
-    print("On")
-    s.on()
-    time.sleep(5)
-    s.off()
-    print("Off")
-    print("Done")
-
-def manual():
-    s = Solenoid()
-#    print "On"
-#    s.on()
-    s.off()
-    print("Off")
+    print("Test Pump")
+    print("Turn Pump On")
+    pmp.set_on(True)
+    print("Turn Pump Off")
+    pmp.set_off(True)
     print("Done")
     
 def validate():
-    test(Logger.INFO, False)
+    test(Logger.INFO)
+    
 
 if __name__=="__main__":
-    test()
-        
-        
-        
+    test()    
+                
+    
+
