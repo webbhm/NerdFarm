@@ -41,7 +41,12 @@ For more information on Cron [see:](https://docs.oracle.com/cd/E23824_01/html/82
 ## Hardware Build:
 
 **Fan:**
-There are two fans, one for circulation and one for exhausting excess heat  These can run off the Raspberry's 5V or from a external 12V transformer
+There are two fans, one for circulation and one for exhausting excess heat  These should be run from a external 12V transformer
+
+**Lights**
+The code located here assumes the lights have a 110V cord wired through the relay (pin #4).  Due to concerns about the wiring, the latest code build [https://github.com/webbhm/NerdFarm] has switched to an RF outlet.  This takes some more setup, but makes all the wiring 'plug and play', and much safer.  If you want to use the legacy relay code, it is named 'Light_Relay.py'.  Simply save this file as 'Light.py' and the alternate (legacy) build should work.
+Only one RF plug is used, unless you are doing the alternate build with a auto-fill pump for the reservoir.
+Setting up the RF requires running RF_Receive and pushing the buttons on the remote.  Push each button several times and note the output displayed on the screen; these are the codes unique to your outlets, which need to be copied into a dictionary structure found in RF_Send.py.  You need to hold the remote within inches of the receiver, and the receiver lacks a good antenna.  For more details on the set-up and background, simply Google 'raspberry pi rf'.
 
 **Temperature/Humidity Sensor**
 A SI7021 sensor on an I2C bus is used for temperature and humidity.  See the following for (instructions)[https://learn.adafruit.com/adafruit-si7021-temperature-plus-humidity-sensor/overview] on use and wiring.
@@ -50,7 +55,7 @@ A SI7021 sensor on an I2C bus is used for temperature and humidity.  See the fol
 A standard USB camera is used for imaging (though the Raspberry Pi camera is an option).  See [here](https://www.raspberrypi.org/documentation/usage/webcams/) for instructions
 
 **Relay**
-A set of relays controled by GPIO pins is used to turn lights on and off (120V), and the exhaust fan (12V)
+A set of relays controled by GPIO pins is used to turn the exhaust fan (12V) On and Off.  At this time only one relay is used.
 
 # Pin Assignment:
 Refer to the following [diagram](https://docs.particle.io/datasheets/raspberrypi-datasheet/#pin-out-diagram) for the Raspberry's pin names:
@@ -59,7 +64,7 @@ Code follows the board number convention.
 
 - '3 - SDA to SI7021'
 - '5 - SCL to SI7021'
-- '29 - light relay (relay #4)'
+- '29 - (reserved for relay #4)'
 - '31 - (reserved for relay #3)'
 - '33 - (reserved for relay #2)'
 - '35 - GPIO13 fan control (relay #1)'
