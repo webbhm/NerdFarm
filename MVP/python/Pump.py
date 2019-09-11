@@ -20,16 +20,22 @@ class Pump(object):
         self._logger = logger
         if self._logger == None:
             self._logger = Logger('Pump', Logger.INFO, "/home/pi/MVP/logs/obsv.log")
-        self._couch = CouchUtil(self._logger)        
+        self._couch = CouchUtil(self._logger)
+        
+    def __del__(self):
+        '''
+        Don't call GPIO.cleanup() as need to leave pin state as is
+        '''
+        pass
 
-    def set_on(self, test=False):
+    def on(self, test=False):
         "Check state and turn on if needed"
         self._rf.set_on(pumpPin,)
         self.log_state("On", test)
         self._logger.debug('Pump turned ON')            
             
         
-    def set_off(self, test=False):
+    def off(self, test=False):
         '''Check state and turn off if needed'''
         self._rf.set_off(pumpPin)
         self.log_state("Off", test)
@@ -60,9 +66,9 @@ def test(level=Logger.DEBUG):
     
     print("Test Pump")
     print("Turn Pump On")
-    pmp.set_on(True)
+    pmp.on(True)
     print("Turn Pump Off")
-    pmp.set_off(True)
+    pmp.off(True)
     print("Done")
     
 def validate():
