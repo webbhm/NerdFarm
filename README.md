@@ -62,12 +62,12 @@ Refer to the following [diagram](https://docs.particle.io/datasheets/raspberrypi
 
 Code follows the board number convention.
 
-- '3 - SDA to SI7021'
-- '5 - SCL to SI7021'
-- '29 - (reserved for relay #4)(Legacy light pin)'
-- '31 - (reserved for relay #3)'
-- '33 - (reserved for relay #2)'
-- '35 - GPIO13 fan control (relay #1)'
+- 3 - SDA to SI7021
+- 5 - SCL to SI7021
+- 29 - (reserved for relay #4)(Legacy light pin)
+- 31 - Fan
+- 33 - (reserved for relay #2)
+- 35 - GPIO13 pump (or other use)
 
 
 ## Build Activities
