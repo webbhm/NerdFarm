@@ -1,9 +1,14 @@
 '''
 Log Optional sensors to CouchDB
-Called from /home/pi/MVP/scripts/LogMVP.sh - needs to be uncommented for this to run
-Uncomment desired functions in makeEnvObsv
+May be called from /home/pi/MVP/scripts/LogMVP.sh - uncomment the call in the script if you want this file to run
+To add new sensors, clone a 'get' function for the new sensor and change the details:
+  logger name
+  import statement
+  date retreival call
+  data storage format (type of data, units, sensor name)
+Then add a call to this new function in the 'log' function
 Author: Howard Webb
-Date: 5/3/2019
+Date: 11/22/2019
 '''
 
 from CouchUtil import CouchUtil
@@ -225,17 +230,17 @@ class LogSensorsExtra(object):
             Imports are in the function to avoid loading unnecessary code
         '''
 
-        self.getOneWire()
+        #self.getOneWire()
 
-        self.getLux()
+        #self.getLux()
 
-        self.getEC()        
+        #self.getEC()        
 
-        #lg.getCO2_NDIR()
+        #self.getCO2_NDIR()
 
-        #lg.getCO2_CCS811()
+        #self.getCO2_CCS811()
         
-        #lg.getSCD()
+        #self.getSCD()
         
 def test():
     '''
