@@ -1,5 +1,8 @@
 '''
-Create demo data for testing
+Combination Json parser and CouchDB front end
+Convert the record into json structure for activity type
+Author: Howard Webb
+Date: 11/22/2019
 '''
 
 from couchdb import Server
@@ -22,14 +25,7 @@ PARTICIPANT = 9
 STATUS = 10
 COMMENT = 11
 
-url = 'http://webbhm:admin@localhost:5984'
 db_name = 'mvp_data'
-
-usr = 'webbhm'
-pwd = 'admin'
-server = Server()
-#server.resource.credentials = (usr, pwd)
-db = server[db_name]
 
 class CouchUtil(object):
     
@@ -41,6 +37,8 @@ class CouchUtil(object):
         self._activity_type = "Environment_Observation"
         self._logger.detail("CouchUtil")
         self._test = False
+        self._server = Server()
+        self._db = self._server[db_name]
      
 
     def processEnv(self, row):
@@ -164,7 +162,7 @@ class CouchUtil(object):
             
         return rec
 
-    def saveList(self, doc, test=False):
+    def save(self, doc, test=False):
         '''
         Convert activity list to json structure and save to database
         This is the entry point for all other functions
@@ -202,29 +200,21 @@ class CouchUtil(object):
 
         '''
         
-    #    print rec
-        global db
-        id, rev = db.save(rec)
-
+        #    print rec
+        id, rev = self._db.save(rec)
 
 def validate():
-    lu = CouchUtil()
-    print("Env Rec")
-    rec = ['Environment_Observation','', 'Left_Side', 'Air', 'Temperature', 27.5, 'fairenheight', 'SI7021', 'Success', '']
-    lu.saveList(rec)
-    print("Env Rec - Person")
-    rec = ['Environment_Observation','', 'Reservoir', 'Nutrient', 'pH', 5.6, 'pH',['person','hmw'], 'Success', 'from bucket']
-    lu.saveList(rec)
-    print("Agro Rec")
-    rec = ['Agronomic_Activity', 'd3ca243b-2740-4557-87f9-c07be9d929ad', 'Planted', '', '', '', '', ['person','hmw'], 'Success', '']
-    lu.saveList(rec)
-    print("Pheno Rec")
-    rec = ['Phenotype_Observation', 'd3ca243b-2740-4557-87f9-c07be9d929ad', 1,'Plant','Weight', 125, 'g', ['person','hmw'], 'Success', '']
-    lu.saveList(rec)
-    print("State Rec")
-    rec = ['State_Change', '','Top', 'Light', 'state', 'ON', 'state', 'Light', 'Success', '']
-    lu.saveList(rec)
+    test(Logger.INFO)
+
+def test(level=Logger.DETAIL):
+    print("CouchUtil Test")
+    util = CouchUtil()
+    util._logger.setLevel(level)
+    from TestRecords import recs
+    for rec in recs:
+        util.save(rec)
+    print("Done")        
 
     
 if __name__=="__main__":
-    validate()
+    test()

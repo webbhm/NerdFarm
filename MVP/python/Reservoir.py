@@ -4,11 +4,11 @@ import time
 from env import env
 from EC import EC
 from LogUtil import Logger
-from CouchUtil import CouchUtil
+from Persistence import Persistence
 
 
 # full and low will be different for seedlings (without roots) and plants
-full_ec = 17000
+full_ec = 19000
 empty_ec = 25000
 fill_time = 5
 timeout = 10
@@ -27,7 +27,7 @@ class Reservoir:
         self.res={'full':full_ec, 'empty':empty_ec, 'timeout':timeout}
         self._activity_type = 'Agronomic_Activity'
         self._logger = Logger('LogReservoir', Logger.INFO)
-        self._couch = CouchUtil(self._logger)
+        self._persist = Persistence(self._logger)
         self._logger.detail("Reservoir Initialized")
         # flag for testing
         self._test=False
@@ -141,7 +141,7 @@ class Reservoir:
         if self._test:
             status_qualifier='Test'
         txt={'Volume': value, 'full_level': self.res['full'], 'empty_level': self.res['empty'], 'status': 'Full'}        
-        self._couch.saveList(['State_Change', '', 'Nutrient', 'Reservoir', 'Volume', value, 'Liter', 'Solenoid', status_qualifier, ''])
+        self._persist.save(['State_Change', '', 'Nutrient', 'Reservoir', 'Volume', value, 'Liter', 'Solenoid', status_qualifier, ''])
         self._logger.info(txt)
 
 def test(level=Logger.DEBUG, test=True):

@@ -8,7 +8,7 @@ from env import env
 from Relay import Relay, FAN_PIN
 import time
 from LogUtil import Logger
-from CouchUtil import CouchUtil
+from Persistence import Persistence
 
 class Fan(object):
     """Code associated with the exhaust fan"""
@@ -24,7 +24,7 @@ class Fan(object):
         self._logger.debug("initialize Fan object")        
         self._relay = Relay(self._logger)
         self.fan_relay = FAN_PIN
-        self._couch = CouchUtil(self._logger)
+        self._persist = Persistence(self._logger)
         # flag for testing
         self._test = False
         
@@ -71,17 +71,20 @@ class Fan(object):
     def log_state(self, value):
         """Send state change to database
            Args:
-               value: state change
+               value: state change (numeric value)
                test: flag for testing
            Returns:
                None
            Raises:
                None
         """
+        state = 'Off'
+        if value > 0:
+            state = 'On'
         status_qualifier = 'Success'
         if self._test:
             status_qualifier = 'Test'
-        self._couch.saveList(['State_Change', '', 'Side', 'Fan', 'State', value, 'state', 'Fan', status_qualifier, ''])
+        self._persist.save(['State_Change', '', 'Side', 'Fan', 'State', state, 'Boolean', 'Fan', status_qualifier, ''])
         self._logger.debug("{}, {:1}, {} {}".format("Fan State Change: Value: ", value, " Status Qualifier: ", status_qualifier))        
         
     def getState(self):

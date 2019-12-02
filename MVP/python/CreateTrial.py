@@ -9,11 +9,16 @@ Create Environment and Trials
 import uuid
 import json
 from datetime import datetime
+import os
 
 def makeTrial():
     from env import env
     env['trials'] = Trials()
     saveDict('env', '/home/pi/MVP/python/env.py', env)
+    # clear out old logs that don't rotate
+    os.remove('/home/pi/MVP/logs/cron.log')
+    os.remove('/home/pi/MVP/logs/couchdb.log')
+    os.remove('/home/pi/MVP/logs/heartbeat.log')
     
 def Trials():
     trials = []

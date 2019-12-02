@@ -32,7 +32,7 @@ class Thermostat(object):
         # Get target temperature from file
         target_temp = env['thermostat']['targetTemp']
         msg = "{} {} {} {}".format("Temp:", temp, " Target Temp:", target_temp)
-        self._logger.info(msg)    
+        self._logger.debug(msg)    
         if temp > target_temp:
             self._fan.set(Fan.ON)
         else:

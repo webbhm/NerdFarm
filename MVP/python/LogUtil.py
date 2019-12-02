@@ -32,9 +32,9 @@ class Logger(object):
         # Rotating File handler
         fname = "/home/pi/MVP/logs/logger.log"
         if file==None:
-            file_handler = TimedRotatingFileHandler(fname, when="d", interval=30, backupCount=3)
+            file_handler = TimedRotatingFileHandler(fname, when="d", interval=7, backupCount=3)
         else:            
-            file_handler = TimedRotatingFileHandler(file, when="d", interval=30, backupCount=3)            
+            file_handler = TimedRotatingFileHandler(file, when="d", interval=7, backupCount=3)            
         self._logger.setLevel(lvl)        
         #Set formaat
         fmt = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
@@ -55,13 +55,13 @@ class Logger(object):
         self._logger.log(Logger.DETAIL, msg)
         
     def info(self, msg):
-        self._logger.info(msg)
+        self._logger.log(Logger.INFO, msg)
 
     def debug(self, msg):
-        self._logger.debug(msg)
+        self._logger.log(Logger.DEBUG, msg)
 
     def error(self, msg):
-        self._logger.error(msg)
+        self._logger.log(Logger.ERROR, msg)
 
 def validate():
     """Test of the logger

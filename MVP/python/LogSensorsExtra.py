@@ -1,18 +1,13 @@
 '''
 Log Optional sensors to CouchDB
-May be called from /home/pi/MVP/scripts/LogMVP.sh - uncomment the call in the script if you want this file to run
-To add new sensors, clone a 'get' function for the new sensor and change the details:
-  logger name
-  import statement
-  date retreival call
-  data storage format (type of data, units, sensor name)
-Then add a call to this new function in the 'log' function
+Called from /home/pi/MVP/scripts/LogMVP.sh - needs to be uncommented for this to run
+Uncomment desired functions in makeEnvObsv
 Author: Howard Webb
-Date: 11/22/2019
+Date: 5/3/2019
 '''
 
-from CouchUtil import CouchUtil
 from LogUtil import Logger
+from Persistence import Persistence
 
 class LogSensorsExtra(object):
 
@@ -27,8 +22,9 @@ class LogSensorsExtra(object):
         """        
         self._logger = Logger("LogSensor-Extra", lvl, file="/home/pi/MVP/logs/obsv.log")
         self._activity_type = "Environment_Observation"
-        self._dbLogger = CouchUtil(self._logger)
         self._test=False
+        self._persist = Persistence(self._logger)
+        
         
     def getOneWire(self, test=False):
         """Loop OneWire temperature sensors
@@ -65,13 +61,15 @@ class LogSensorsExtra(object):
             status_qualifier = 'Success'
             if self._test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList([self._activity_type, '', name, 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier,''])
+            rec = [self._activity_type, '', name, 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier,'']
+            self._persist.save(rec)
             self._logger.info("{}, {}, {:10.1f}".format(name, status_qualifier, temp))                                    
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList([self._activity_type, '', name, 'Air', 'Temperature', '', 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier, str(e)])            
+            rec = [self._activity_type, '', name, 'Air', 'Temperature', '', 'Centigrade', 'DS18B20-' + str(sensor), status_qualifier, str(e)]                
+            self._persist.save(rec)
             self._logger.error("{}, {}, {}".format(name, status_qualifier, e))                                            
 
     def getLux(self, test=False):
@@ -92,13 +90,15 @@ class LogSensorsExtra(object):
             status_qualifier = 'Success'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Light', 'LUX', "{:3.1f}".format(lux), 'lux', 'TSL2561', status_qualifier,''])                        
+            rec = [self._activity_type, '', 'Canopy', 'Light', 'LUX', "{:3.1f}".format(lux), 'lux', 'TSL2561', status_qualifier,'']
+            self._persist.save(rec)
             self._logger.info("{}, {}, {:10.1f}".format("LUX", status_qualifier, lux))                                                                   
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Light', 'LUX', '', 'lux', 'TSL2561', status_qualifier,str(e)])                                    
+            rec = [self._activity_type, '', 'Canopy', 'Light', 'LUX', '', 'lux', 'TSL2561', status_qualifier,str(e)]
+            self._persist.save(rec)
             self._logger.error("{}, {}, {}".format("LUX", status_qualifier, e))
 
     def getEC(self, test=False):
@@ -122,14 +122,16 @@ class LogSensorsExtra(object):
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))                
-            self._dbLogger.saveList([self._activity_type, '', 'Reservoir', 'Nutrient', 'EC', "{:3.1f}".format(ec), 'EC', 'EC', status_qualifier,''])                                    
+            rec = [self._activity_type, '', 'Reservoir', 'Nutrient', 'EC', "{:3.1f}".format(ec), 'EC', 'EC', status_qualifier,'']
+            self._persist.save(rec)
             self._logger.info("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))                                                                   
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("EC", status_qualifier, ec))
-            self._dbLogger.saveList([self._activity_type, '', 'Reservoir', 'Nutrient', 'EC', '', 'EC', 'EC', status_qualifier,str(e)])                                                
+            rec = [self._activity_type, '', 'Reservoir', 'Nutrient', 'EC', '', 'EC', 'EC', status_qualifier,str(e)]
+            self._persist.save(rec)            
             self._logger.error("{}, {}, {}".format("EC CCS811", status_qualifier, e))
             
     def getCO2_NDIR(self, test=False):
@@ -141,10 +143,10 @@ class LogSensorsExtra(object):
         Raises:
             None
         """           
-        from NDIR import NDIR
+        from NDIR import Sensor
         self._logger.info("CO2 - NDIR")
         try:
-            sensor = NDIR.Sensor()
+            sensor = Sensor()
             sensor.begin()
             co2=sensor.getCO2()
 
@@ -152,14 +154,16 @@ class LogSensorsExtra(object):
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("CO2 Canopy", status_qualifier, co2))                
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Air', 'CO2', "{:3.1f}".format(co2), 'ppm', 'MH-Z16-NDIR', status_qualifier,''])                                                
+            rec = [self._activity_type, '', 'Canopy', 'Air', 'CO2', "{:3.1f}".format(co2), 'ppm', 'MH-Z16-NDIR', status_qualifier,'']
+            self._persist.save(rec)
             self._logger.debug("{}, {}, {:10.1f}".format("CO2", status_qualifier, co2))                                                       
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("CO2 Canopy", status_qualifier, co2))                                
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Air', 'CO2', '', 'ppm', 'MH-Z16-NDIR', status_qualifier,str(e)])                                                            
+            rec = [self._activity_type, '', 'Canopy', 'Air', 'CO2', '', 'ppm', 'MH-Z16-NDIR', status_qualifier,str(e)]
+            self._persist.save(rec)
             self._logger.error("{}, {}, {}".format("CO2 NDIR", status_qualifier, e))
 
     def getCO2_CCS811(self, test=False):
@@ -181,14 +185,16 @@ class LogSensorsExtra(object):
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("CO2 Canopy", status_qualifier, co2))                                
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Air', 'CO2', "{:3.1f}".format(co2), 'ppm', 'CCS811', status_qualifier,''])                                                            
+            rec = [self._activity_type, '', 'Canopy', 'Air', 'CO2', "{:3.1f}".format(co2), 'ppm', 'CCS811', str(e)]
+            self._persist.save(rec)
             self._logger.debug("{}, {}, {:10.1f}".format("CCS811 - CO2", status_qualifier, co2))                                                                                                  
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
                 print("{}, {}, {:10.1f}".format("CO2 Canopy", status_qualifier, co2))                                
-            self._dbLogger.saveList([self._activity_type, '', 'Canopy', 'Air', 'CO2','', 'ppm', 'CCS811', status_qualifier,str(e)])                                                                        
+            rec = [self._activity_type, '', 'Canopy', 'Air', 'CO2','', 'ppm', 'CCS811', status_qualifier,str(e)]
+            self._persist.save(rec)
             self._logger.error("{}, {}, {}".format("CO2 CCS811", status_qualifier, e))
             
     def getSCD(self):
@@ -211,19 +217,71 @@ class LogSensorsExtra(object):
             status = 'Success'
             if self._test:
                 status = 'Test'
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'CO2', "{:10.1f}".format(co2), 'ppm', 'scd30', status, ''])
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'scd30', status, ''])
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(rh), 'Percent', 'scd30', status, ''])
+            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', "{:10.1f}".format(co2), 'ppm', 'scd30', status, '']
+            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'scd30', status, '']
+            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(rh), 'Percent', 'scd30', status, '']            
+            self._persist.save(c_rec)
+            self._persist.save(t_rec)
+            self._persist.save(h_rec)            
             self._logger.info("{} {:6.1f}, {} {:3.1f}, {} {:3.1f}".format("EnvObsv-CO2:", co2, "Temp", temp, "Humidity:", rh))            
         except Exception as e:
             status = 'Failure'
             if self._test:
                 status = 'Test'
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'CO2', '', 'ppm', 'scd30', status, str(e)])                            
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrde', 'scd30', status, ''])
-            self._couch.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'scd30', status, ''])
+            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', '', 'ppm', 'scd30', status, str(e)]
+            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrde', 'scd30', status, '']
+            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'scd30', status, '']
+            self._persist.save(c_rec)
+            self._persist.save(t_rec)
+            self._persist.save(h_rec)            
             self._logger.debug("{} {}".format("EnvObsv-SCD30 Error:", e))            
             
+    def getV_CO2(self):
+        """Record Vernier CO2 sensor
+            Generates co2, temperature and relative humidity
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            None
+        """           
+        self._logger.info("In V_CO2")        
+        from V_CO2 import V_CO2
+        vco2 = V_CO2(self._logger)
+
+        try:
+            data = vco2.read()
+            if data is None:
+                self._logger.debug("No data for V_CO2")
+                return
+            
+            co2 = data[0]
+            temp = data[1]
+            rh = data[2]
+
+            status = 'Success'
+            if self._test:
+                status = 'Test'
+            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', "{:10.1f}".format(co2), 'ppm', 'V_CO2', status, '']
+            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'V_CO2', status, '']
+            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(rh), 'Percent', 'V_CO2', status, '']            
+            self._persist.save(c_rec)
+            self._persist.save(t_rec)
+            self._persist.save(h_rec)            
+            self._logger.info("{} {:6.1f}, {} {:3.1f}, {} {:3.1f}".format("EnvObsv-CO2:", co2, "Temp", temp, "Humidity:", rh))            
+        except Exception as e:
+            status = 'Failure'
+            if self._test:
+                status = 'Test'
+            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', '', 'ppm', 'V_CO2', status, str(e)]
+            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrde', 'V_CO2', status, '']
+            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'V_CO2', status, '']
+            self._persist.save(c_rec)
+            self._persist.save(t_rec)
+            self._persist.save(h_rec)            
+            self._logger.debug("{} {}".format("EnvObsv-SCD30 Error:", e))            
+
     def log(self):
         '''Log extra sensors
             Uncomment desired sensors
@@ -232,15 +290,17 @@ class LogSensorsExtra(object):
 
         #self.getOneWire()
 
-        #self.getLux()
+        self.getLux()
 
-        #self.getEC()        
+        self.getEC()        
 
-        #self.getCO2_NDIR()
+        self.getCO2_NDIR()
 
         #self.getCO2_CCS811()
         
-        #self.getSCD()
+        self.getSCD()
+        
+        self.getV_CO2()
         
 def test():
     '''

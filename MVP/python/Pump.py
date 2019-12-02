@@ -9,7 +9,7 @@ There is no way to check the state with the RF
 
 from RF_Send import RF_Sender
 from LogUtil import Logger
-from CouchUtil import CouchUtil
+from Persistence import Persistence
 
 pumpPin = 2
 
@@ -20,7 +20,7 @@ class Pump(object):
         self._logger = logger
         if self._logger == None:
             self._logger = Logger('Pump', Logger.INFO, "/home/pi/MVP/logs/obsv.log")
-        self._couch = CouchUtil(self._logger)
+        self._persist = Persistence(self._logger)
         
     def __del__(self):
         '''
@@ -48,7 +48,7 @@ class Pump(object):
         status_qualifier='Success'
         if test:
             status_qualifier='Test'
-        self._couch.saveList(['State_Change','','Reservoir', 'Pump', 'State', value, 'Pump', 'state', status_qualifier, ''])                    
+        self._persist.save(['State_Change','','Reservoir', 'Pump', 'State', value, 'Pump', 'state', status_qualifier, ''])                    
 
 
 def test(level=Logger.DEBUG):

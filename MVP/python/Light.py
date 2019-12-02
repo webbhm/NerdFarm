@@ -9,25 +9,29 @@ There is no way to check the light state with the RF
 
 from RF_Send import RF_Sender
 from LogUtil import Logger
-from CouchUtil import CouchUtil
+from Environ import Environ
+from Persistence import Persistence
 
-lightPin = 1
+lightPin = 1 #RF Switch
 
 class Light(object):
 
     def __init__(self, logger=None):
-        self._rf = RF_Sender()
         self._logger = logger
         if self._logger == None:
             self._logger = Logger('Light', Logger.INFO, "/home/pi/MVP/logs/obsv.log")
-        self._couch = CouchUtil(self._logger)        
+            self._logger.debug("Initialize RF Light")
+        self._rf = RF_Sender(self._logger)
+        self._persist = Persistence(self._logger)
+        
+    def __del__(self):
+        self._rf.cleanup()
 
     def set_on(self, test=False):
         "Check state and turn on if needed"
         self._rf.set_on(lightPin,)
         self.log_state("On", test)
         self._logger.debug('Light turned ON')            
-            
         
     def set_off(self, test=False):
         '''Check state and turn off if needed'''
@@ -42,12 +46,19 @@ class Light(object):
         status_qualifier='Success'
         if test:
             status_qualifier='Test'
-        self._couch.saveList(['State_Change','','Top', 'Lights', 'State', value, 'Lights', 'state', status_qualifier, ''])            
+        self._persist.save(['State_Change','','Top', 'Lights', 'State', value, 'Boolean', 'Light', status_qualifier, ''])
+        
+    def check(self):
+        env = Environ(self._logger)
+        if env._state:
+            self.set_on(test)
+        else:
+            self.set_off(test)
 
 def test(level=Logger.DEBUG):
     """Self test
            Args:
-               None
+               level - debug display level
            Returns:
                None
            Raises:
@@ -64,6 +75,8 @@ def test(level=Logger.DEBUG):
     lght.set_off(True)
     print("Turn Light On")
     lght.set_on(True)
+    print("Check what should be")
+    lght.check()
     print("Done")
     
 def validate():

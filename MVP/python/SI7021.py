@@ -222,6 +222,7 @@ def test():
     """
     validate()
     si=SI7021()
+    si._logger.setLevel(Logger.DEBUG)
     while True:
        temp = si.get_tempC()
        si._logger.info("Temp: " + str(temp))

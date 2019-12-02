@@ -6,8 +6,8 @@ Author: Howard Webb
 Date: 5/3/2019
 '''
 
-from CouchUtil import CouchUtil
 from LogUtil import Logger
+from Persistence import Persistence
 
 class LogSensors(object):
 
@@ -22,7 +22,7 @@ class LogSensors(object):
         """        
         self._logger = Logger("LogSensors", lvl)
         self._activity_type = "Environment_Observation"
-        self._dbLogger = CouchUtil(self._logger)
+        self._persist = Persistence(self._logger)
         
     def getSI7021(self, test=False):
         """Record temperature and humidity
@@ -43,14 +43,19 @@ class LogSensors(object):
             status_qualifier = 'Success'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'SI7021', status_qualifier, ''])
+            rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'SI7021', status_qualifier, '']            
+            # copy record
+            self._persist.save(rec)
             self._logger.debug("{}, {}, {:10.1f}".format("Temp-SI7021", status_qualifier, temp))
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList(['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrade', 'SI7021', status_qualifier, str(e)])                            
+            rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrade', 'SI7021', status_qualifier, str(e)]
+            self._persist.save(rec)            
             self._logger.error("{}, {}, {}".format("Temp-SI7021", status_qualifier, e))
+
+            
         # Log humidity
         self._logger.info("Humidity-SI7021")                
         try:
@@ -59,14 +64,19 @@ class LogSensors(object):
             status_qualifier = 'Success'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(humid), 'Percent', 'SI7021', status_qualifier, ''])                
+            rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(humid), 'Percent', 'SI7021', status_qualifier, '']
+            self._persist.save(rec)            
             self._logger.debug("{}, {}, {:10.1f}".format("Humidity-SI7021", status_qualifier, humid))
+
         except Exception as e:
             status_qualifier = 'Failure'
             if test:
                 status_qualifier = 'Test'
-            self._dbLogger.saveList(['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'SI7021', status_qualifier, str(e)])
+            rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'SI7021', status_qualifier, str(e)]
+            # copy record
+            self._persist.save(rec)            
             self._logger.error("{}, {}, {}".format("Humidity-SI7021", status_qualifier, e))
+
             
     def log(self, test=False):
         '''Logsensors
