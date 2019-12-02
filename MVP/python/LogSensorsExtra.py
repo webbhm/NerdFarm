@@ -236,52 +236,6 @@ class LogSensorsExtra(object):
             self._persist.save(h_rec)            
             self._logger.debug("{} {}".format("EnvObsv-SCD30 Error:", e))            
             
-    def getV_CO2(self):
-        """Record Vernier CO2 sensor
-            Generates co2, temperature and relative humidity
-        Args:
-            None
-        Returns:
-            None
-        Raises:
-            None
-        """           
-        self._logger.info("In V_CO2")        
-        from V_CO2 import V_CO2
-        vco2 = V_CO2(self._logger)
-
-        try:
-            data = vco2.read()
-            if data is None:
-                self._logger.debug("No data for V_CO2")
-                return
-            
-            co2 = data[0]
-            temp = data[1]
-            rh = data[2]
-
-            status = 'Success'
-            if self._test:
-                status = 'Test'
-            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', "{:10.1f}".format(co2), 'ppm', 'V_CO2', status, '']
-            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', "{:10.1f}".format(temp), 'Centigrade', 'V_CO2', status, '']
-            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', "{:10.1f}".format(rh), 'Percent', 'V_CO2', status, '']            
-            self._persist.save(c_rec)
-            self._persist.save(t_rec)
-            self._persist.save(h_rec)            
-            self._logger.info("{} {:6.1f}, {} {:3.1f}, {} {:3.1f}".format("EnvObsv-CO2:", co2, "Temp", temp, "Humidity:", rh))            
-        except Exception as e:
-            status = 'Failure'
-            if self._test:
-                status = 'Test'
-            c_rec = ['Environment_Observation', '', 'Top', 'Air', 'CO2', '', 'ppm', 'V_CO2', status, str(e)]
-            t_rec = ['Environment_Observation', '', 'Top', 'Air', 'Temperature', '', 'Centigrde', 'V_CO2', status, '']
-            h_rec = ['Environment_Observation', '', 'Top', 'Air', 'Humidity', '', 'Percent', 'V_CO2', status, '']
-            self._persist.save(c_rec)
-            self._persist.save(t_rec)
-            self._persist.save(h_rec)            
-            self._logger.debug("{} {}".format("EnvObsv-SCD30 Error:", e))            
-
     def log(self):
         '''Log extra sensors
             Uncomment desired sensors
@@ -300,7 +254,6 @@ class LogSensorsExtra(object):
         
         self.getSCD()
         
-        self.getV_CO2()
         
 def test():
     '''
