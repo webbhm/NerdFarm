@@ -1,6 +1,7 @@
 # NerdFarm
 Code for the building of the NerdFarm brain
 4/27/2019 - The code and build are working and stable.
+12/1/2019 - Modify persistence so can also (optionally) save to Google Sheets
 At this time there is no version tagging, so just pull the master
 ## Background 
 
@@ -17,7 +18,7 @@ The MVP (Minimal Viable Product) is a simplified version of the MIT OpenAg Food 
  ## Building multiple MVPs
   - Once you have configured one SD card, from the main menu, use the Accessories/SD Card Copier to replicate the system for the other MVPs.  Just be sure to run the following so that a unique ID will be created for each MVP
   
-  > python /home/pi/MVP/python/Environment.py
+  > python /home/pi/MVP/python/CreateEnv.py
 
 ## Architecture:
 The MVP brain is mostly python scripts involed using cron as the scheduler.  
@@ -64,10 +65,8 @@ Code follows the board number convention.
 
 - 3 - SDA to SI7021
 - 5 - SCL to SI7021
-- 29 - (reserved for relay #4)(Legacy light pin)
-- 31 - Fan
-- 33 - (reserved for relay #2)
-- 35 - GPIO13 pump (or other use)
+- 29 - Fan
+- 31 - not used at this time
 
 
 ## Build Activities
